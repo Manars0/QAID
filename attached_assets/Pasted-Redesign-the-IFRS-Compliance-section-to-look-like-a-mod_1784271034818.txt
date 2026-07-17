@@ -1,0 +1,103 @@
+Redesign the IFRS Compliance section to look like a modern enterprise SaaS dashboard (Stripe / Microsoft / Linear style).
+
+The current cards are too large, too colorful, and contain unnecessary information. I want a cleaner and more premium UI.
+
+Requirements:
+
+1. Reduce card height by around 35–40%.
+
+2. Remove the large colored backgrounds.
+- All cards should have a white background (Light Mode).
+- Dark gray background in Dark Mode.
+- Only use a thin colored left border to indicate status:
+  🟢 Green = Passed
+  🟡 Yellow = Review Recommended
+  🟠 Orange = Potential Issue
+  🔴 Red = High Risk
+
+3. Remove the "COMPLIANCE SCORE" label completely.
+Only display the percentage once in the top-right corner.
+
+Example:
+
+IAS 24                                   98.5%
+Potential Issue
+
+238 potential duplicate journal entries detected.
+
+[View Details]
+
+4. Make the rule name the largest text.
+
+Example:
+IAS 24
+
+Below it show the status badge.
+
+Below it show ONE short reason only.
+
+Do NOT use long paragraphs.
+
+5. Status badge style:
+
+🟢 Passed
+🟡 Review Recommended
+🟠 Potential Issue
+🔴 High Risk
+
+Use small rounded pills with subtle background colors.
+
+6. Remove unnecessary labels:
+❌ REASON
+❌ COMPLIANCE SCORE
+
+Just display the sentence naturally.
+
+Instead of:
+
+REASON
+238 duplicate entries detected.
+
+Use:
+
+238 duplicate journal entries detected.
+
+7. Add a small secondary action at the bottom-right:
+
+"View Details"
+
+with a chevron icon.
+
+Do not use a large button.
+
+8. Improve spacing:
+- More whitespace.
+- Better alignment.
+- Consistent padding.
+- Premium typography.
+
+9. Add smooth hover effects:
+- Slight shadow.
+- Slight border highlight.
+- No animations longer than 200ms.
+
+10. Keep every card exactly the same width and height.
+
+11. Make the layout responsive:
+Desktop:
+2 cards per row.
+
+Tablet:
+2 cards.
+
+Mobile:
+1 card.
+
+12. Use enterprise design language similar to:
+- Stripe Dashboard
+- Microsoft Fabric
+- Azure Portal
+- Notion
+- Linear
+
+The final result should feel minimal, elegant, and executive-ready—not like a checklist or a school report.

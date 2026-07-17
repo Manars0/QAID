@@ -8,8 +8,7 @@ import { EntryDetailModal } from "./EntryDetailModal"
 import {
   Calendar, CircleDot, Copy, Moon, Scale, UserMinus, Users,
   TrendingUp, Banknote, Archive, AlertTriangle, ShieldAlert,
-  CheckCircle2, AlertCircle, XCircle, ChevronDown, ChevronRight,
-  ArrowUpRight, Loader2,
+  ChevronDown, ChevronRight, ArrowUpRight, Loader2,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 
@@ -48,59 +47,49 @@ const SEVERITY_COLORS: Record<string, string> = {
   LOW:      "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10",
 }
 
-// ─── IFRS status → human label ────────────────────────────────────────────────
+// ─── IFRS status → visual config ─────────────────────────────────────────────
 interface ComplianceConfig {
   label: string
-  icon: LucideIcon
-  textCls: string
-  bgCls: string
-  borderCls: string
-  badgeBg: string
-  impactLevel: string
+  scoreCls: string          // colour for the score number
+  leftBorder: string        // border-l colour class
+  badgeCls: string          // pill background + text
+  recommendation: string
 }
 
-function getComplianceConfig(status: string, score: number): ComplianceConfig {
+function getComplianceConfig(status: string, score: number, standard: string): ComplianceConfig {
   if (status === "COMPLIANT") {
     return {
-      label: "Compliant",
-      icon: CheckCircle2,
-      textCls: "text-emerald-600 dark:text-emerald-400",
-      bgCls: "bg-emerald-500/5",
-      borderCls: "border-emerald-500/20",
-      badgeBg: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
-      impactLevel: "None",
+      label: "Passed",
+      scoreCls: "text-emerald-600 dark:text-emerald-400",
+      leftBorder: "border-l-emerald-500",
+      badgeCls: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+      recommendation: "No action required. This standard is fully met.",
     }
   }
   if (status === "WARNING" || (status === "NON_COMPLIANT" && score >= 97)) {
     return {
-      label: "Needs Review",
-      icon: AlertCircle,
-      textCls: "text-amber-600 dark:text-amber-400",
-      bgCls: "bg-amber-500/5",
-      borderCls: "border-amber-500/20",
-      badgeBg: "bg-amber-500/10 text-amber-700 dark:text-amber-300",
-      impactLevel: "Low",
+      label: "Review Recommended",
+      scoreCls: "text-amber-600 dark:text-amber-400",
+      leftBorder: "border-l-amber-500",
+      badgeCls: "bg-amber-500/10 text-amber-700 dark:text-amber-300",
+      recommendation: `Review flagged entries for ${standard} and confirm accounting estimates are within acceptable ranges.`,
     }
   }
   if (status === "NON_COMPLIANT" && score >= 90) {
     return {
       label: "Potential Issue",
-      icon: AlertTriangle,
-      textCls: "text-orange-600 dark:text-orange-400",
-      bgCls: "bg-orange-500/5",
-      borderCls: "border-orange-500/20",
-      badgeBg: "bg-orange-500/10 text-orange-700 dark:text-orange-300",
-      impactLevel: "Medium",
+      scoreCls: "text-orange-600 dark:text-orange-400",
+      leftBorder: "border-l-orange-500",
+      badgeCls: "bg-orange-500/10 text-orange-700 dark:text-orange-300",
+      recommendation: `Escalate to the accounting team. Duplicate or related-party entries under ${standard} require review and approval documentation.`,
     }
   }
   return {
     label: "High Risk",
-    icon: XCircle,
-    textCls: "text-red-600 dark:text-red-400",
-    bgCls: "bg-red-500/5",
-    borderCls: "border-red-500/20",
-    badgeBg: "bg-red-500/10 text-red-700 dark:text-red-300",
-    impactLevel: "High",
+    scoreCls: "text-red-600 dark:text-red-400",
+    leftBorder: "border-l-red-500",
+    badgeCls: "bg-red-500/10 text-red-700 dark:text-red-300",
+    recommendation: `Immediate review required. Approval workflow gaps under ${standard} must be resolved before the next reporting period.`,
   }
 }
 
@@ -322,102 +311,83 @@ function IFRSComplianceSection() {
   return (
     <section>
       <SectionLabel>{t.ifrs_compliance}</SectionLabel>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {items.map((item: any, i: number) => {
-          const cfg = getComplianceConfig(item.status, item.score ?? 100)
-          const Icon = cfg.icon
+          const cfg = getComplianceConfig(item.status, item.score ?? 100, item.standard)
           const isOpen = expanded.has(i)
+          // Short reason: first sentence of details, capped at ~120 chars
+          const shortReason = (() => {
+            const src = item.details || item.requirement || ""
+            const dot = src.indexOf(".")
+            const sentence = dot > 0 ? src.slice(0, dot + 1) : src
+            return sentence.length > 120 ? sentence.slice(0, 117) + "…" : sentence
+          })()
 
           return (
             <div
               key={i}
-              className={`rounded-xl border overflow-hidden transition-all duration-200 ${cfg.bgCls} ${cfg.borderCls}`}
+              className={[
+                "group relative flex flex-col bg-card rounded-xl border border-border",
+                "border-l-[3px]", cfg.leftBorder,
+                "hover:shadow-md hover:border-border/80 transition-all duration-150 overflow-hidden",
+              ].join(" ")}
             >
-              {/* Always-visible summary */}
-              <button
-                className="w-full text-left px-5 py-4 flex flex-col gap-3"
-                onClick={() => toggle(i)}
-              >
-                {/* Top row: standard + status badge + chevron */}
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <Icon className={`h-4 w-4 shrink-0 ${cfg.textCls}`} />
-                    <span className="text-base font-bold tracking-tight">{item.standard}</span>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${cfg.badgeBg}`}>
-                      {cfg.label}
-                    </span>
-                    <ChevronDown
-                      className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
-                    />
-                  </div>
-                </div>
+              {/* ── Card body ───────────────────────────────────────── */}
+              <div className="flex flex-col flex-1 px-5 pt-5 pb-4 gap-3">
 
-                {/* Reason */}
-                <div className="space-y-0.5">
-                  <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                    {t.reason}
-                  </p>
-                  <p className={`text-sm leading-snug ${isOpen ? "" : "line-clamp-2"} text-foreground/80`}>
-                    {item.details || item.requirement}
-                  </p>
-                </div>
-
-                {/* Compliance score */}
-                {item.score != null && (
-                  <div className="flex items-center justify-between pt-1 border-t border-border/40">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                      {t.compliance_score}
-                    </p>
-                    <span className={`text-lg font-bold tabular-nums ${cfg.textCls}`}>
+                {/* Row 1: standard name + score */}
+                <div className="flex items-start justify-between gap-3">
+                  <span className="text-[15px] font-bold tracking-tight leading-none">
+                    {item.standard}
+                  </span>
+                  {item.score != null && (
+                    <span className={`text-sm font-semibold tabular-nums shrink-0 ${cfg.scoreCls}`}>
                       {item.score.toFixed(1)}%
                     </span>
-                  </div>
-                )}
-              </button>
+                  )}
+                </div>
 
-              {/* Expandable details panel */}
+                {/* Row 2: status pill */}
+                <span className={`self-start text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${cfg.badgeCls}`}>
+                  {cfg.label}
+                </span>
+
+                {/* Row 3: short reason — no label prefix */}
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {shortReason}
+                </p>
+
+                {/* Row 4: View Details link */}
+                <div className="flex justify-end pt-1">
+                  <button
+                    onClick={() => toggle(i)}
+                    className="inline-flex items-center gap-0.5 text-xs font-medium text-primary hover:underline underline-offset-2 transition-colors"
+                  >
+                    {isOpen ? "Hide Details" : "View Details"}
+                    <ChevronRight
+                      className={`h-3.5 w-3.5 transition-transform duration-150 ${isOpen ? "rotate-90" : ""}`}
+                    />
+                  </button>
+                </div>
+              </div>
+
+              {/* ── Expanded panel ───────────────────────────────────── */}
               {isOpen && (
-                <div className="border-t border-border/40 bg-background/60 px-5 py-4 space-y-4">
-                  {/* Why triggered */}
-                  <div className="space-y-1">
-                    <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+                <div className="border-t border-border/50 bg-muted/30 px-5 py-4 space-y-3">
+                  {/* Full reason */}
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">
                       {t.why_triggered}
                     </p>
-                    <p className="text-sm leading-relaxed">{item.requirement}</p>
+                    <p className="text-sm leading-relaxed">{item.details || item.requirement}</p>
                   </div>
-
-                  {/* Metadata row */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="rounded-lg bg-muted/50 px-3 py-2.5 space-y-0.5">
-                      <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                        {t.impact_level}
-                      </p>
-                      <p className={`text-sm font-semibold ${cfg.textCls}`}>{cfg.impactLevel}</p>
-                    </div>
-                    <div className="rounded-lg bg-muted/50 px-3 py-2.5 space-y-0.5">
-                      <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                        {t.status}
-                      </p>
-                      <p className="text-sm font-semibold">{cfg.label}</p>
-                    </div>
-                  </div>
-
                   {/* Recommendation */}
-                  <div className="space-y-1">
-                    <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">
                       {t.recommendation}
                     </p>
                     <p className="text-sm leading-relaxed text-foreground/80">
-                      {cfg.impactLevel === "None"
-                        ? "No action required. This standard is fully met."
-                        : cfg.impactLevel === "Low"
-                        ? `Review flagged entries for ${item.standard} and confirm accounting estimates are within acceptable ranges.`
-                        : cfg.impactLevel === "Medium"
-                        ? `Escalate to the accounting team. Duplicate or related-party entries under ${item.standard} require review and approval documentation.`
-                        : `Immediate review required. Revenue recognition or approval workflow gaps under ${item.standard} must be resolved before the next reporting period.`
-                      }
+                      {cfg.recommendation}
                     </p>
                   </div>
                 </div>
