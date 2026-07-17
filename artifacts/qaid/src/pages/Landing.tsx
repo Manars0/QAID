@@ -76,14 +76,13 @@ export function Landing() {
 
           {/* Logo image — replaces the old text h1 */}
           <div className="flex justify-center">
-            <div className="bg-[#0F172A] rounded-2xl px-8 py-5 inline-flex">
-              <img
-                src="/qaid-logo.png"
-                alt="QAID"
-                className="h-20 w-auto object-contain"
-                draggable={false}
-              />
-            </div>
+            <img
+              src="/qaid-logo.png"
+              alt="QAID"
+              className="h-24 w-auto object-contain"
+              style={{ background: "transparent", border: "none", boxShadow: "none" }}
+              draggable={false}
+            />
           </div>
 
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">

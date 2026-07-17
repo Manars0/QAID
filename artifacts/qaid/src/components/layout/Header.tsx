@@ -18,19 +18,13 @@ export function Header() {
 
         {/* Logo */}
         <Link href="/" className="flex items-center select-none shrink-0">
-          {/* 
-            The uploaded logo PNG has a dark background.
-            We wrap it in a dark-navy pill so it reads cleanly on both
-            light and dark header backgrounds.
-          */}
-          <div className="bg-[#0F172A] rounded-xl px-3 py-1.5 flex items-center">
-            <img
-              src="/qaid-logo.png"
-              alt="QAID"
-              className="h-7 w-auto object-contain"
-              draggable={false}
-            />
-          </div>
+          <img
+            src="/qaid-logo.png"
+            alt="QAID"
+            className="h-9 w-auto object-contain"
+            style={{ background: "transparent", border: "none", boxShadow: "none" }}
+            draggable={false}
+          />
         </Link>
 
         {/* Controls */}
