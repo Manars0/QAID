@@ -27,17 +27,17 @@ function getRiskBadge(level: string): "success" | "warning" | "danger" | "critic
 
 function getFraudIcon(name: string): LucideIcon {
   const n = name.toLowerCase()
-  if (n.includes("weekend"))          return Calendar
-  if (n.includes("round") || n.includes("suspicious")) return CircleDot
-  if (n.includes("duplicate"))        return Copy
-  if (n.includes("out-of-hours") || n.includes("hours")) return Moon
-  if (n.includes("imbalance") || n.includes("debit"))   return Scale
-  if (n.includes("inactive"))         return UserMinus
-  if (n.includes("high user") || n.includes("user"))    return Users
-  if (n.includes("monthly") || n.includes("variance"))  return TrendingUp
-  if (n.includes("large") || n.includes("amount"))      return Banknote
-  if (n.includes("suspense"))         return Archive
-  if (n.includes("critical"))         return AlertTriangle
+  if (n.includes("weekend"))                                return Calendar
+  if (n.includes("round") || n.includes("suspicious"))     return CircleDot
+  if (n.includes("duplicate"))                             return Copy
+  if (n.includes("out-of-hours") || n.includes("hours"))  return Moon
+  if (n.includes("imbalance") || n.includes("debit"))     return Scale
+  if (n.includes("inactive"))                             return UserMinus
+  if (n.includes("high user") || n.includes("user"))      return Users
+  if (n.includes("monthly") || n.includes("variance"))    return TrendingUp
+  if (n.includes("large") || n.includes("amount"))        return Banknote
+  if (n.includes("suspense"))                             return Archive
+  if (n.includes("critical"))                             return AlertTriangle
   return ShieldAlert
 }
 
@@ -46,6 +46,62 @@ const SEVERITY_COLORS: Record<string, string> = {
   HIGH:     "text-orange-600 dark:text-orange-400 bg-orange-500/10",
   MEDIUM:   "text-amber-600 dark:text-amber-400 bg-amber-500/10",
   LOW:      "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10",
+}
+
+// ─── IFRS status → human label ────────────────────────────────────────────────
+interface ComplianceConfig {
+  label: string
+  icon: LucideIcon
+  textCls: string
+  bgCls: string
+  borderCls: string
+  badgeBg: string
+  impactLevel: string
+}
+
+function getComplianceConfig(status: string, score: number): ComplianceConfig {
+  if (status === "COMPLIANT") {
+    return {
+      label: "Compliant",
+      icon: CheckCircle2,
+      textCls: "text-emerald-600 dark:text-emerald-400",
+      bgCls: "bg-emerald-500/5",
+      borderCls: "border-emerald-500/20",
+      badgeBg: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+      impactLevel: "None",
+    }
+  }
+  if (status === "WARNING" || (status === "NON_COMPLIANT" && score >= 97)) {
+    return {
+      label: "Needs Review",
+      icon: AlertCircle,
+      textCls: "text-amber-600 dark:text-amber-400",
+      bgCls: "bg-amber-500/5",
+      borderCls: "border-amber-500/20",
+      badgeBg: "bg-amber-500/10 text-amber-700 dark:text-amber-300",
+      impactLevel: "Low",
+    }
+  }
+  if (status === "NON_COMPLIANT" && score >= 90) {
+    return {
+      label: "Potential Issue",
+      icon: AlertTriangle,
+      textCls: "text-orange-600 dark:text-orange-400",
+      bgCls: "bg-orange-500/5",
+      borderCls: "border-orange-500/20",
+      badgeBg: "bg-orange-500/10 text-orange-700 dark:text-orange-300",
+      impactLevel: "Medium",
+    }
+  }
+  return {
+    label: "High Risk",
+    icon: XCircle,
+    textCls: "text-red-600 dark:text-red-400",
+    bgCls: "bg-red-500/5",
+    borderCls: "border-red-500/20",
+    badgeBg: "bg-red-500/10 text-red-700 dark:text-red-300",
+    impactLevel: "High",
+  }
 }
 
 // ─── Section Label ─────────────────────────────────────────────────────────────
@@ -67,7 +123,6 @@ function FraudIndicatorsSection() {
   const indicators: any[] = analysisResult.fraud_indicators ?? []
   if (indicators.length === 0) return null
 
-  // Sort: critical first
   const severityOrder: Record<string, number> = { CRITICAL: 0, HIGH: 1, MEDIUM: 2, LOW: 3 }
   const sorted = [...indicators].sort(
     (a, b) => (severityOrder[a.severity] ?? 4) - (severityOrder[b.severity] ?? 4)
@@ -83,9 +138,8 @@ function FraudIndicatorsSection() {
           return (
             <div
               key={i}
-              className="rounded-xl border bg-card p-5 flex flex-col gap-3 hover:shadow-sm transition-shadow"
+              className="rounded-xl border bg-card p-4 sm:p-5 flex flex-col gap-3 hover:shadow-sm transition-shadow"
             >
-              {/* Header row */}
               <div className="flex items-start justify-between gap-2">
                 <div className={`p-2 rounded-lg ${colorCls}`}>
                   <Icon className="h-4 w-4" />
@@ -94,13 +148,10 @@ function FraudIndicatorsSection() {
                   {ind.count.toLocaleString()}
                 </span>
               </div>
-              {/* Name */}
               <p className="text-sm font-semibold leading-tight">{ind.name}</p>
-              {/* Short description */}
               <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
                 {ind.description}
               </p>
-              {/* Severity badge */}
               <span className={`self-start text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide ${colorCls}`}>
                 {ind.severity}
               </span>
@@ -135,13 +186,11 @@ function HighRiskEntriesSection() {
 
   return (
     <section>
-      <div className="flex items-center justify-between mb-4">
-        <SectionLabel>{t.high_risk_entries}</SectionLabel>
-      </div>
+      <SectionLabel>{t.high_risk_entries}</SectionLabel>
 
       <div className="rounded-xl border bg-card overflow-hidden">
-        {/* Table header */}
-        <div className="grid grid-cols-[1fr_1.6fr_1fr_1.2fr_1fr_0.8fr_0.9fr] text-xs font-semibold uppercase tracking-wider text-muted-foreground bg-muted/50 border-b px-5 py-3 gap-3 hidden md:grid">
+        {/* Desktop table header */}
+        <div className="hidden md:grid grid-cols-[1fr_1.6fr_1fr_1.2fr_1fr_0.8fr_0.9fr] text-xs font-semibold uppercase tracking-wider text-muted-foreground bg-muted/50 border-b px-5 py-3 gap-3">
           <span>ID</span>
           <span>{t.account}</span>
           <span>{t.date}</span>
@@ -151,7 +200,6 @@ function HighRiskEntriesSection() {
           <span>{t.level}</span>
         </div>
 
-        {/* Body */}
         {isLoading ? (
           <div className="flex items-center justify-center gap-2 py-12 text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -161,50 +209,70 @@ function HighRiskEntriesSection() {
           <div className="py-12 text-center text-sm text-muted-foreground">{t.no_entries}</div>
         ) : (
           <div className="divide-y divide-border/60">
-            {displayEntries.map((entry: any) => (
-              <button
-                key={entry.entry_id}
-                className="w-full text-left px-5 py-3.5 hover:bg-muted/40 transition-colors group grid grid-cols-1 md:grid-cols-[1fr_1.6fr_1fr_1.2fr_1fr_0.8fr_0.9fr] gap-3 items-center"
-                onClick={() => setSelectedEntryId(entry.entry_id)}
-              >
-                {/* ID */}
-                <span className="font-mono text-xs text-muted-foreground group-hover:text-foreground transition-colors">
-                  {entry.entry_id.substring(0, 12)}…
-                </span>
-                {/* Account */}
-                <span className="text-sm font-medium truncate">{entry.account}</span>
-                {/* Date */}
-                <span className="text-sm text-muted-foreground">
-                  {new Date(entry.date).toLocaleDateString()}
-                </span>
-                {/* Amount */}
-                <span className="text-sm font-mono font-medium">
-                  ${entry.amount.toLocaleString()}
-                </span>
-                {/* User */}
-                <span className="text-sm text-muted-foreground truncate">{entry.user || "System"}</span>
-                {/* Score */}
-                <span className={`text-sm font-bold tabular-nums ${
-                  entry.risk_score >= 75 ? "text-red-600 dark:text-red-400" :
-                  entry.risk_score >= 50 ? "text-orange-600 dark:text-orange-400" :
-                  entry.risk_score >= 25 ? "text-amber-600 dark:text-amber-400" :
-                  "text-emerald-600 dark:text-emerald-400"
-                }`}>
-                  {entry.risk_score}
-                </span>
-                {/* Level */}
-                <div className="flex items-center justify-between">
-                  <Badge variant={getRiskBadge(entry.risk_level) as any}>
-                    {t[entry.risk_level.toLowerCase() as keyof typeof t] ?? entry.risk_level}
-                  </Badge>
-                  <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-              </button>
-            ))}
+            {displayEntries.map((entry: any) => {
+              const scoreColor =
+                entry.risk_score >= 75 ? "text-red-600 dark:text-red-400" :
+                entry.risk_score >= 50 ? "text-orange-600 dark:text-orange-400" :
+                entry.risk_score >= 25 ? "text-amber-600 dark:text-amber-400" :
+                "text-emerald-600 dark:text-emerald-400"
+
+              return (
+                <button
+                  key={entry.entry_id}
+                  className="w-full text-left hover:bg-muted/40 transition-colors group"
+                  onClick={() => setSelectedEntryId(entry.entry_id)}
+                >
+                  {/* Desktop row */}
+                  <div className="hidden md:grid grid-cols-[1fr_1.6fr_1fr_1.2fr_1fr_0.8fr_0.9fr] gap-3 items-center px-5 py-3.5">
+                    <span className="font-mono text-xs text-muted-foreground group-hover:text-foreground transition-colors">
+                      {entry.entry_id.substring(0, 12)}…
+                    </span>
+                    <span className="text-sm font-medium truncate">{entry.account}</span>
+                    <span className="text-sm text-muted-foreground">
+                      {new Date(entry.date).toLocaleDateString()}
+                    </span>
+                    <span className="text-sm font-mono font-medium">
+                      ${entry.amount.toLocaleString()}
+                    </span>
+                    <span className="text-sm text-muted-foreground truncate">{entry.user || "System"}</span>
+                    <span className={`text-sm font-bold tabular-nums ${scoreColor}`}>
+                      {entry.risk_score}
+                    </span>
+                    <div className="flex items-center justify-between">
+                      <Badge variant={getRiskBadge(entry.risk_level) as any}>
+                        {t[entry.risk_level.toLowerCase() as keyof typeof t] ?? entry.risk_level}
+                      </Badge>
+                      <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                  </div>
+
+                  {/* Mobile stacked card */}
+                  <div className="md:hidden px-4 py-3.5 space-y-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-sm font-semibold truncate flex-1">{entry.account}</span>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className={`text-sm font-bold tabular-nums ${scoreColor}`}>
+                          {entry.risk_score}
+                        </span>
+                        <Badge variant={getRiskBadge(entry.risk_level) as any}>
+                          {t[entry.risk_level.toLowerCase() as keyof typeof t] ?? entry.risk_level}
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
+                      <span>{new Date(entry.date).toLocaleDateString()}</span>
+                      <span className="opacity-40">·</span>
+                      <span className="font-mono font-medium text-foreground">${entry.amount.toLocaleString()}</span>
+                      <span className="opacity-40">·</span>
+                      <span>{entry.user || "System"}</span>
+                    </div>
+                  </div>
+                </button>
+              )
+            })}
           </div>
         )}
 
-        {/* Footer: view all / show less */}
         {hasMore && !isLoading && (
           <div className="border-t px-5 py-3 bg-muted/30">
             <button
@@ -221,7 +289,6 @@ function HighRiskEntriesSection() {
         )}
       </div>
 
-      {/* Detail modal */}
       {selectedEntryId && sessionId && (
         <EntryDetailModal
           sessionId={sessionId}
@@ -233,7 +300,7 @@ function HighRiskEntriesSection() {
   )
 }
 
-// ─── 3. IFRS Compliance Expandable Cards ─────────────────────────────────────
+// ─── 3. IFRS Compliance Cards ─────────────────────────────────────────────────
 function IFRSComplianceSection() {
   const { analysisResult } = useAnalysis()
   const { language } = useTheme()
@@ -252,53 +319,107 @@ function IFRSComplianceSection() {
       return next
     })
 
-  const statusConfig: Record<string, { icon: LucideIcon; cls: string; label: string }> = {
-    COMPLIANT:     { icon: CheckCircle2, cls: "text-emerald-600 dark:text-emerald-400", label: t.compliant },
-    WARNING:       { icon: AlertCircle,  cls: "text-amber-600  dark:text-amber-400",   label: t.warning   },
-    NON_COMPLIANT: { icon: XCircle,      cls: "text-red-600    dark:text-red-400",      label: t.non_compliant },
-  }
-
   return (
     <section>
       <SectionLabel>{t.ifrs_compliance}</SectionLabel>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {items.map((item: any, i: number) => {
-          const cfg = statusConfig[item.status] ?? statusConfig.WARNING
+          const cfg = getComplianceConfig(item.status, item.score ?? 100)
           const Icon = cfg.icon
           const isOpen = expanded.has(i)
 
           return (
-            <div key={i} className="rounded-xl border bg-card overflow-hidden">
-              {/* Header (always visible) */}
+            <div
+              key={i}
+              className={`rounded-xl border overflow-hidden transition-all duration-200 ${cfg.bgCls} ${cfg.borderCls}`}
+            >
+              {/* Always-visible summary */}
               <button
-                className="w-full flex items-center gap-3 px-5 py-4 hover:bg-muted/40 transition-colors text-left"
+                className="w-full text-left px-5 py-4 flex flex-col gap-3"
                 onClick={() => toggle(i)}
               >
-                <Icon className={`h-5 w-5 shrink-0 ${cfg.cls}`} />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-semibold text-sm">{item.standard}</span>
-                    <span className={`text-xs font-semibold ${cfg.cls}`}>{cfg.label}</span>
+                {/* Top row: standard + status badge + chevron */}
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <Icon className={`h-4 w-4 shrink-0 ${cfg.textCls}`} />
+                    <span className="text-base font-bold tracking-tight">{item.standard}</span>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-0.5 truncate">{item.requirement}</p>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${cfg.badgeBg}`}>
+                      {cfg.label}
+                    </span>
+                    <ChevronDown
+                      className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+                    />
+                  </div>
                 </div>
-                <div className="flex items-center gap-3 shrink-0">
-                  {item.score != null && (
-                    <span className={`text-sm font-bold tabular-nums ${cfg.cls}`}>
+
+                {/* Reason */}
+                <div className="space-y-0.5">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    {t.reason}
+                  </p>
+                  <p className={`text-sm leading-snug ${isOpen ? "" : "line-clamp-2"} text-foreground/80`}>
+                    {item.details || item.requirement}
+                  </p>
+                </div>
+
+                {/* Compliance score */}
+                {item.score != null && (
+                  <div className="flex items-center justify-between pt-1 border-t border-border/40">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      {t.compliance_score}
+                    </p>
+                    <span className={`text-lg font-bold tabular-nums ${cfg.textCls}`}>
                       {item.score.toFixed(1)}%
                     </span>
-                  )}
-                  <ChevronDown
-                    className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
-                  />
-                </div>
+                  </div>
+                )}
               </button>
 
-              {/* Expandable body */}
+              {/* Expandable details panel */}
               {isOpen && (
-                <div className="border-t bg-muted/20 px-5 py-4 space-y-2">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t.details}</p>
-                  <p className="text-sm leading-relaxed">{item.details}</p>
+                <div className="border-t border-border/40 bg-background/60 px-5 py-4 space-y-4">
+                  {/* Why triggered */}
+                  <div className="space-y-1">
+                    <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+                      {t.why_triggered}
+                    </p>
+                    <p className="text-sm leading-relaxed">{item.requirement}</p>
+                  </div>
+
+                  {/* Metadata row */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="rounded-lg bg-muted/50 px-3 py-2.5 space-y-0.5">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                        {t.impact_level}
+                      </p>
+                      <p className={`text-sm font-semibold ${cfg.textCls}`}>{cfg.impactLevel}</p>
+                    </div>
+                    <div className="rounded-lg bg-muted/50 px-3 py-2.5 space-y-0.5">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                        {t.status}
+                      </p>
+                      <p className="text-sm font-semibold">{cfg.label}</p>
+                    </div>
+                  </div>
+
+                  {/* Recommendation */}
+                  <div className="space-y-1">
+                    <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+                      {t.recommendation}
+                    </p>
+                    <p className="text-sm leading-relaxed text-foreground/80">
+                      {cfg.impactLevel === "None"
+                        ? "No action required. This standard is fully met."
+                        : cfg.impactLevel === "Low"
+                        ? `Review flagged entries for ${item.standard} and confirm accounting estimates are within acceptable ranges.`
+                        : cfg.impactLevel === "Medium"
+                        ? `Escalate to the accounting team. Duplicate or related-party entries under ${item.standard} require review and approval documentation.`
+                        : `Immediate review required. Revenue recognition or approval workflow gaps under ${item.standard} must be resolved before the next reporting period.`
+                      }
+                    </p>
+                  </div>
                 </div>
               )}
             </div>

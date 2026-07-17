@@ -9,6 +9,19 @@ import {
   RadialBarChart, RadialBar, PolarAngleAxis,
 } from "recharts"
 
+// ─── Responsive hook ──────────────────────────────────────────────────────────
+function useIsMobile() {
+  const [isMobile, setIsMobile] = React.useState(() =>
+    typeof window !== "undefined" ? window.innerWidth < 768 : false
+  )
+  React.useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 768)
+    window.addEventListener("resize", handler, { passive: true })
+    return () => window.removeEventListener("resize", handler)
+  }, [])
+  return isMobile
+}
+
 const RISK_COLORS: Record<string, string> = {
   LOW:      "hsl(var(--risk-low))",
   MEDIUM:   "hsl(var(--risk-medium))",
@@ -54,7 +67,6 @@ function RiskGauge() {
               <RadialBar background={{ fill: "hsl(var(--muted))" }} dataKey="value" cornerRadius={8} />
             </RadialBarChart>
           </ResponsiveContainer>
-          {/* Overlay labels */}
           <div className="absolute inset-0 flex flex-col items-center justify-end pb-3 pointer-events-none">
             <span className="text-5xl font-bold tabular-nums leading-none" style={{ color }}>
               {score.toFixed(1)}
@@ -63,7 +75,6 @@ function RiskGauge() {
               {kpi_summary.risk_level}
             </span>
           </div>
-          {/* Scale labels */}
           <div className="absolute bottom-2 left-4 text-xs text-muted-foreground">0</div>
           <div className="absolute bottom-2 right-4 text-xs text-muted-foreground">100</div>
         </div>
@@ -77,18 +88,19 @@ function RiskDistribution() {
   const { analysisResult } = useAnalysis()
   const { language } = useTheme()
   const t = translations[language]
+  const isMobile = useIsMobile()
   if (!analysisResult) return null
 
   const { risk_distribution } = analysisResult
 
   const RADIAN = Math.PI / 180
   const renderLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
-    if (percent < 0.06) return null
+    if (percent < 0.07) return null
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5
     const x = cx + radius * Math.cos(-midAngle * RADIAN)
     const y = cy + radius * Math.sin(-midAngle * RADIAN)
     return (
-      <text x={x} y={y} fill="#fff" textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={700}>
+      <text x={x} y={y} fill="#fff" textAnchor="middle" dominantBaseline="central" fontSize={isMobile ? 10 : 11} fontWeight={700}>
         {`${(percent * 100).toFixed(0)}%`}
       </text>
     )
@@ -99,14 +111,14 @@ function RiskDistribution() {
       <CardHeader className="pb-0">
         <CardTitle className="text-base font-semibold">{t.risk_distribution}</CardTitle>
       </CardHeader>
-      <CardContent className="flex-1 flex items-center justify-center pt-4">
-        <ResponsiveContainer width="100%" height={220}>
+      <CardContent className="flex-1 flex items-center justify-center pt-4 pb-2">
+        <ResponsiveContainer width="100%" height={isMobile ? 200 : 220}>
           <PieChart>
             <Pie
               data={risk_distribution}
               cx="50%" cy="50%"
-              innerRadius={52}
-              outerRadius={85}
+              innerRadius={isMobile ? 40 : 52}
+              outerRadius={isMobile ? 70 : 85}
               paddingAngle={2}
               dataKey="count"
               nameKey="level"
@@ -130,6 +142,7 @@ function RiskDistribution() {
             <Legend
               iconType="circle"
               iconSize={8}
+              wrapperStyle={{ fontSize: 12, paddingTop: 8 }}
               formatter={(value) => (
                 <span style={{ fontSize: 12, color: "hsl(var(--muted-foreground))" }}>
                   {value}
@@ -148,18 +161,24 @@ function TopRiskAccounts() {
   const { analysisResult } = useAnalysis()
   const { language } = useTheme()
   const t = translations[language]
+  const isMobile = useIsMobile()
   if (!analysisResult) return null
 
   const accounts: any[] = analysisResult.high_risk_accounts ?? []
-  const chartData = accounts
-    .slice(0, 8)
+
+  // Always sort highest risk first
+  const chartData = [...accounts]
+    .sort((a, b) => b.avg_risk_score - a.avg_risk_score)
+    .slice(0, isMobile ? 5 : 8)
     .map((a) => ({
-      name: a.account_name
-        ? `${a.account_code} · ${a.account_name.length > 16 ? a.account_name.substring(0, 16) + "…" : a.account_name}`
-        : a.account_code,
+      code: a.account_code
+        ? (a.account_code.length > 12 ? a.account_code.substring(0, 12) + "…" : a.account_code)
+        : "N/A",
+      fullName: a.account_name || a.account_code || "Unknown",
       score: Math.round(a.avg_risk_score),
       level: a.risk_level,
       amount: a.total_amount,
+      entries: a.total_entries,
     }))
 
   if (chartData.length === 0) {
@@ -175,50 +194,83 @@ function TopRiskAccounts() {
     )
   }
 
+  const yAxisWidth = isMobile ? 80 : 100
+  const chartHeight = isMobile ? 180 : 220
+
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (!active || !payload?.length) return null
+    const d = payload[0].payload
+    return (
+      <div
+        style={{
+          backgroundColor: "hsl(var(--card))",
+          border: "1px solid hsl(var(--border))",
+          borderRadius: 8,
+          padding: "10px 14px",
+          fontSize: 12,
+          color: "hsl(var(--foreground))",
+          maxWidth: 220,
+        }}
+      >
+        <p className="font-semibold mb-1.5 text-xs" style={{ color: RISK_SCORE_COLOR[d.level] ?? "#10b981" }}>
+          {d.fullName}
+        </p>
+        <div className="space-y-0.5 text-xs">
+          <div className="flex justify-between gap-6">
+            <span className="text-muted-foreground">{t.avg_score}</span>
+            <span className="font-bold">{d.score} / 100</span>
+          </div>
+          <div className="flex justify-between gap-6">
+            <span className="text-muted-foreground">{t.amount}</span>
+            <span className="font-mono">${d.amount?.toLocaleString() ?? "—"}</span>
+          </div>
+          <div className="flex justify-between gap-6">
+            <span className="text-muted-foreground">{t.total_entries}</span>
+            <span>{d.entries?.toLocaleString() ?? "—"}</span>
+          </div>
+          <div className="flex justify-between gap-6 pt-0.5">
+            <span className="text-muted-foreground">{t.level}</span>
+            <span className="font-semibold" style={{ color: RISK_SCORE_COLOR[d.level] ?? "#10b981" }}>
+              {d.level}
+            </span>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <Card className="flex flex-col">
       <CardHeader className="pb-0">
         <CardTitle className="text-base font-semibold">{t.top_risk_accounts}</CardTitle>
       </CardHeader>
-      <CardContent className="flex-1 pt-4">
-        <ResponsiveContainer width="100%" height={220}>
+      <CardContent className="flex-1 pt-4 overflow-hidden">
+        <ResponsiveContainer width="100%" height={chartHeight}>
           <BarChart
             data={chartData}
             layout="vertical"
-            margin={{ top: 0, right: 40, left: 4, bottom: 0 }}
+            margin={{ top: 0, right: isMobile ? 24 : 40, left: 4, bottom: 0 }}
             barCategoryGap="30%"
           >
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
             <XAxis
               type="number"
               domain={[0, 100]}
-              tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+              tick={{ fontSize: isMobile ? 10 : 11, fill: "hsl(var(--muted-foreground))" }}
               tickLine={false}
               axisLine={false}
+              tickCount={isMobile ? 5 : 6}
             />
             <YAxis
               type="category"
-              dataKey="name"
-              width={110}
-              tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+              dataKey="code"
+              width={yAxisWidth}
+              tick={{ fontSize: isMobile ? 10 : 11, fill: "hsl(var(--muted-foreground))" }}
               tickLine={false}
               axisLine={false}
             />
-            <Tooltip
-              cursor={{ fill: "hsl(var(--muted))" }}
-              contentStyle={{
-                backgroundColor: "hsl(var(--card))",
-                borderColor: "hsl(var(--border))",
-                color: "hsl(var(--foreground))",
-                borderRadius: 8,
-                fontSize: 12,
-              }}
-              formatter={(v: number, _name: string, props: any) => [
-                `${v} / 100 — ${props.payload?.level ?? ""}`,
-                t.score,
-              ]}
-            />
-            <Bar dataKey="score" radius={[0, 4, 4, 0]} maxBarSize={16}>
+            <Tooltip content={<CustomTooltip />} cursor={{ fill: "hsl(var(--muted))" }} />
+            <Bar dataKey="score" radius={[0, 4, 4, 0]} maxBarSize={isMobile ? 12 : 16}>
               {chartData.map((entry, i) => (
                 <Cell key={i} fill={RISK_SCORE_COLOR[entry.level] ?? "#10b981"} />
               ))}

@@ -1,0 +1,255 @@
+Perform a full UI/UX refinement across the application with the following requirements.
+
+==========================================================
+1. IFRS COMPLIANCE CARDS
+==========================================================
+
+The current cards are confusing because they only display a percentage.
+
+Replace the current design with a clearer business-friendly layout.
+
+Each card should display:
+
+• Standard (IAS 1, IAS 8, IFRS 9...)
+• Status
+• Short reason
+• Compliance %
+• Expand for details
+
+Example:
+
+IAS 8
+Status: Needs Review
+Reason:
+262 accounts exceeded the monthly variance threshold (>200%), requiring accounting estimate review.
+
+Compliance Score:
+98.3%
+
+------------------------------------
+
+IAS 24
+Status: Potential Issue
+Reason:
+Duplicate journal entries detected involving related-party accounts.
+
+Compliance Score:
+98.5%
+
+------------------------------------
+
+IFRS 15
+Status: High Risk
+Reason:
+Revenue recognition transactions bypassed normal approval workflow.
+
+Compliance Score:
+99.6%
+
+When expanded show:
+
+• Why this standard was triggered
+• Number of affected entries
+• Impact level
+• Recommendation
+
+==========================================================
+2. RENAME ALL STATUS LABELS
+==========================================================
+
+Replace everywhere in the application:
+
+Non-Compliant
+↓
+
+Needs Review
+(Potential minor issue)
+
+Potential Issue
+(Medium severity)
+
+High Risk
+(High severity)
+
+Use colors:
+
+Needs Review
+Yellow (#F59E0B)
+
+Potential Issue
+Orange (#F97316)
+
+High Risk
+Red (#EF4444)
+
+Do NOT use "Non-Compliant" anywhere in the UI unless there is an actual confirmed accounting violation.
+
+==========================================================
+3. PDF EXPORT
+==========================================================
+
+Update the exported PDF to match the NEW QAID branding.
+
+The PDF must use exactly the same colors as the website.
+
+Replace all old blue colors with:
+
+Primary Teal
+#0F9D94
+
+Dark Navy
+#111827
+
+Light Background
+#F8FAFC
+
+Cards
+#FFFFFF
+
+Borders
+#E2E8F0
+
+Success
+#10B981
+
+Warning
+#F59E0B
+
+Danger
+#EF4444
+
+Typography:
+
+Inter
+Tajawal
+
+Include:
+
+QAID logo
+
+Updated color palette
+
+Modern cards
+
+Better spacing
+
+Rounded sections
+
+Charts matching website colors
+
+Professional executive-report styling.
+
+==========================================================
+4. MOBILE CHART FIXES
+==========================================================
+
+Several charts overflow and become unreadable on phones.
+
+Make every chart fully responsive.
+
+Requirements:
+
+Detect mobile screens.
+
+Bar charts:
+
+• Horizontal labels
+OR
+• Truncate long labels with ...
+• Tooltip shows full account name.
+
+Increase left padding.
+
+Prevent label overlap.
+
+Maintain readable font sizes.
+
+Donut charts:
+
+Scale correctly.
+
+Legends wrap instead of overflowing.
+
+Line charts:
+
+Reduce number of x-axis labels on mobile.
+
+Prevent clipping.
+
+No chart should overflow its container.
+
+==========================================================
+5. HIGH RISK ACCOUNT CHART
+==========================================================
+
+The "High Risk Accounts" chart is unreadable on mobile.
+
+Redesign it.
+
+Use:
+
+Horizontal bars
+
+Risk score
+
+Colored severity
+
+Account code
+
+Tooltip:
+
+Account name
+
+Amount
+
+Entries
+
+Average score
+
+Highest risk should always appear first.
+
+==========================================================
+6. MOBILE UI POLISH
+==========================================================
+
+Improve spacing across the dashboard.
+
+Cards:
+
+Padding 16–20px
+
+Consistent border radius
+
+Responsive typography
+
+No text clipping
+
+No horizontal scrolling
+
+No overflowing legends
+
+Tables:
+
+Convert to stacked cards on mobile.
+
+Charts:
+
+Scrollable only when absolutely necessary.
+
+==========================================================
+7. FINAL QA
+==========================================================
+
+Before finishing, verify:
+
+✓ No old blue branding remains.
+✓ PDF uses the new QAID colors.
+✓ Mobile charts render correctly on iPhone and Android.
+✓ IFRS cards display a human-readable reason.
+✓ Status labels are:
+   - Needs Review
+   - Potential Issue
+   - High Risk
+✓ No chart labels overlap.
+✓ Dashboard is fully responsive.
+✓ Dark mode and light mode both remain visually consistent.
