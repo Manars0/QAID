@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "QAID"
+version = "1.0.0"
+id = "artifacts/qaid"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 18726
+
+[services.development]
+run = "pnpm --filter @workspace/qaid run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/qaid", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/qaid/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18726"
+BASE_PATH = "/"

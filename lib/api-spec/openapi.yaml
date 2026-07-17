@@ -3,13 +3,17 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: QAID - AI-powered Financial Risk & Compliance API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: analysis
+    description: Analysis operations
+  - name: reports
+    description: Report generation
 paths:
   /healthz:
     get:
@@ -24,6 +28,104 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /upload:
+    post:
+      operationId: uploadFile
+      tags: [analysis]
+      summary: Upload ERP file for analysis
+      description: Upload an Excel (.xlsx), CSV, or ZIP file for fraud detection and risk analysis
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/FileUploadInput"
+      responses:
+        "200":
+          description: Analysis complete
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnalysisResult"
+        "400":
+          description: Invalid file
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /demo:
+    post:
+      operationId: loadDemo
+      tags: [analysis]
+      summary: Load built-in demo dataset
+      description: Run analysis on the built-in realistic accounting demo dataset
+      responses:
+        "200":
+          description: Demo analysis complete
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnalysisResult"
+
+  /analysis/{sessionId}/entries:
+    get:
+      operationId: getAnalysisEntries
+      tags: [analysis]
+      summary: Get all scored entries for a session sorted by risk descending
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of scored entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RiskEntry"
+        "404":
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /analysis/{sessionId}/entry/{entryId}:
+    get:
+      operationId: getEntryDetail
+      tags: [analysis]
+      summary: Get detailed entry breakdown
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: entryId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Entry detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EntryDetail"
+        "404":
+          description: Entry not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +136,354 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    FileUploadInput:
+      type: object
+      required:
+        - file
+      properties:
+        file:
+          description: The ERP file to upload (Excel, CSV, or ZIP)
+          type: string
+
+    KpiSummary:
+      type: object
+      required:
+        - overall_risk_score
+        - risk_level
+        - total_entries
+        - flagged_accounts
+        - suspicious_transactions
+        - compliance_percentage
+        - ai_confidence
+      properties:
+        overall_risk_score:
+          type: number
+        risk_level:
+          type: string
+        total_entries:
+          type: integer
+        flagged_accounts:
+          type: integer
+        suspicious_transactions:
+          type: integer
+        compliance_percentage:
+          type: number
+        ai_confidence:
+          type: number
+
+    RiskDistribution:
+      type: object
+      required:
+        - level
+        - count
+        - percentage
+      properties:
+        level:
+          type: string
+        count:
+          type: integer
+        percentage:
+          type: number
+        color:
+          type: string
+
+    RiskTrend:
+      type: object
+      required:
+        - period
+        - avg_risk_score
+        - entry_count
+      properties:
+        period:
+          type: string
+        avg_risk_score:
+          type: number
+        entry_count:
+          type: integer
+        flagged_count:
+          type: integer
+
+    RiskEntry:
+      type: object
+      required:
+        - entry_id
+        - account
+        - amount
+        - risk_score
+        - fraud_probability
+        - risk_level
+        - triggered_rules
+        - date
+      properties:
+        entry_id:
+          type: string
+        account:
+          type: string
+        account_name:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
+        amount:
+          type: number
+        debit:
+          type: number
+        credit:
+          type: number
+        date:
+          type: string
+        user:
+          type: ["string", "null"]
+        risk_score:
+          type: number
+        fraud_probability:
+          type: number
+        risk_level:
+          type: string
+        triggered_rules:
+          type: array
+          items:
+            type: string
+        ml_score:
+          type: number
+        rule_score:
+          type: number
+
+    RiskAccount:
+      type: object
+      required:
+        - account_code
+        - avg_risk_score
+        - risk_level
+        - total_entries
+        - total_amount
+      properties:
+        account_code:
+          type: string
+        account_name:
+          type: string
+        total_entries:
+          type: integer
+        avg_risk_score:
+          type: number
+        risk_level:
+          type: string
+        total_amount:
+          type: number
+        max_single_amount:
+          type: number
+
+    ChangedAccount:
+      type: object
+      required:
+        - account_code
+        - account_name
+        - monthly_change_pct
+        - current_month
+        - previous_month
+      properties:
+        account_code:
+          type: string
+        account_name:
+          type: string
+        monthly_change_pct:
+          type: number
+        current_month:
+          type: number
+        previous_month:
+          type: number
+
+    FraudIndicator:
+      type: object
+      required:
+        - name
+        - severity
+        - count
+        - description
+      properties:
+        name:
+          type: string
+        severity:
+          type: string
+        count:
+          type: integer
+        description:
+          type: string
+
+    ComplianceItem:
+      type: object
+      required:
+        - standard
+        - requirement
+        - status
+        - details
+      properties:
+        standard:
+          type: string
+        requirement:
+          type: string
+        status:
+          type: string
+        details:
+          type: string
+        score:
+          type: number
+
+    ValidationIssue:
+      type: object
+      required:
+        - type
+        - severity
+        - count
+        - description
+      properties:
+        type:
+          type: string
+        severity:
+          type: string
+        count:
+          type: integer
+        description:
+          type: string
+
+    AnalysisResult:
+      type: object
+      required:
+        - session_id
+        - file_name
+        - kpi_summary
+        - risk_distribution
+        - risk_trend
+        - high_risk_entries
+        - high_risk_accounts
+        - top_changed_accounts
+        - fraud_indicators
+        - compliance_items
+        - recommendations
+        - ai_summary
+        - validation_issues
+        - created_at
+      properties:
+        session_id:
+          type: string
+        file_name:
+          type: string
+        kpi_summary:
+          $ref: "#/components/schemas/KpiSummary"
+        risk_distribution:
+          type: array
+          items:
+            $ref: "#/components/schemas/RiskDistribution"
+        risk_trend:
+          type: array
+          items:
+            $ref: "#/components/schemas/RiskTrend"
+        high_risk_entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/RiskEntry"
+        high_risk_accounts:
+          type: array
+          items:
+            $ref: "#/components/schemas/RiskAccount"
+        top_changed_accounts:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChangedAccount"
+        fraud_indicators:
+          type: array
+          items:
+            $ref: "#/components/schemas/FraudIndicator"
+        compliance_items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ComplianceItem"
+        recommendations:
+          type: array
+          items:
+            type: string
+        ai_summary:
+          type: string
+        validation_issues:
+          type: array
+          items:
+            $ref: "#/components/schemas/ValidationIssue"
+        created_at:
+          type: string
+        total_entries_analyzed:
+          type: integer
+
+    TriggeredRule:
+      type: object
+      required:
+        - rule_name
+        - weight
+        - description
+      properties:
+        rule_name:
+          type: string
+        weight:
+          type: number
+        description:
+          type: string
+
+    EntryDetail:
+      type: object
+      required:
+        - entry_id
+        - account
+        - amount
+        - risk_score
+        - fraud_probability
+        - risk_level
+        - triggered_rules_detail
+        - ml_score
+        - rule_score
+        - recommendation
+        - date
+      properties:
+        entry_id:
+          type: string
+        account:
+          type: string
+        account_name:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
+        amount:
+          type: number
+        debit:
+          type: number
+        credit:
+          type: number
+        date:
+          type: string
+        user:
+          type: ["string", "null"]
+        risk_score:
+          type: number
+        fraud_probability:
+          type: number
+        risk_level:
+          type: string
+        triggered_rules_detail:
+          type: array
+          items:
+            $ref: "#/components/schemas/TriggeredRule"
+        ml_score:
+          type: number
+        rule_score:
+          type: number
+        recommendation:
+          type: string
+        features:
+          type: object
+          additionalProperties:
+            type: number

@@ -1,0 +1,490 @@
+Build a complete Full Stack MVP called "QAID".
+
+QAID is an AI-powered Financial Risk, Fraud Detection and IFRS Compliance platform for ERP accounting systems.
+
+The application must include BOTH:
+
+1. Enterprise Frontend
+2. Python FastAPI Backend
+
+Everything should be production-ready and structured cleanly.
+
+==================================================
+TECH STACK
+==================================================
+
+Frontend
+
+- React
+- TypeScript
+- Vite
+- TailwindCSS
+- shadcn/ui
+- Lucide Icons
+- Recharts
+- Framer Motion
+
+Backend
+
+- Python
+- FastAPI
+- Pandas
+- NumPy
+- Scikit-Learn
+- OpenPyXL
+- XlsxWriter
+- Uvicorn
+
+The architecture must be API-first.
+
+The frontend must communicate with the backend through REST APIs.
+
+Never hardcode dashboard values.
+
+Everything must come from backend responses.
+
+==================================================
+GENERAL FEATURES
+==================================================
+
+✓ English by default
+
+✓ Arabic supported
+
+✓ RTL when Arabic is selected
+
+✓ Language switch
+
+✓ Dark Mode
+
+✓ Light Mode
+
+✓ Responsive
+
+✓ Desktop
+
+✓ Tablet
+
+✓ Mobile
+
+Save language and theme in LocalStorage.
+
+==================================================
+LANDING PAGE
+==================================================
+
+Modern fintech SaaS landing page.
+
+Hero
+
+QAID
+
+AI-powered Financial Risk & Compliance Intelligence
+
+Two large options:
+
+1)
+
+Upload ERP Files
+
+Supports:
+
+Excel (.xlsx)
+
+CSV
+
+ZIP
+
+Drag & Drop uploader.
+
+2)
+
+Explore Demo
+
+Load built-in demo accounting dataset.
+
+Below that show feature cards:
+
+Fraud Detection
+
+Risk Assessment
+
+IFRS Compliance
+
+AI Insights
+
+Executive Dashboard
+
+Smart Reports
+
+ERP Ready
+
+Real-Time Analytics
+
+Workflow section:
+
+Upload
+
+↓
+
+Validate
+
+↓
+
+Analyze
+
+↓
+
+Fraud Detection
+
+↓
+
+Risk Assessment
+
+↓
+
+Dashboard
+
+↓
+
+Report
+
+==================================================
+BACKEND FILE PROCESSING
+==================================================
+
+When the user uploads a file:
+
+If Excel
+
+↓
+
+Read using Pandas.
+
+If CSV
+
+↓
+
+Read directly.
+
+If ZIP
+
+↓
+
+Extract automatically.
+
+Detect all Excel and CSV files.
+
+Automatically identify files such as:
+
+General Ledger
+
+Journal Entries
+
+Chart of Accounts
+
+Vendors
+
+Customers
+
+Use whatever files exist.
+
+Ignore missing files.
+
+==================================================
+DATA VALIDATION
+==================================================
+
+Validate:
+
+Required columns
+
+Missing values
+
+Duplicate rows
+
+Invalid dates
+
+Invalid account codes
+
+Debit/Credit consistency
+
+Generate validation report.
+
+==================================================
+FEATURE ENGINEERING
+==================================================
+
+Automatically create features:
+
+Transaction Amount
+
+Debit/Credit Difference
+
+Posting Hour
+
+Weekend Posting
+
+Round Number
+
+Account Frequency
+
+User Frequency
+
+Historical Average
+
+Monthly Change %
+
+Account Variance
+
+Large Transactions
+
+Inactive Accounts
+
+==================================================
+RULE ENGINE
+==================================================
+
+Create a financial rule engine.
+
+Examples:
+
+Debit != Credit
+
+Critical Risk
+
+Large Amount
+
+Increase Risk
+
+Weekend Posting
+
+Increase Risk
+
+Round Numbers
+
+Increase Risk
+
+Inactive Account
+
+Increase Risk
+
+Duplicate Entry
+
+Increase Risk
+
+Too Many Entries By Same User
+
+Increase Risk
+
+Large Monthly Variance
+
+Increase Risk
+
+Unusual Account Combination
+
+Increase Risk
+
+Every rule has configurable weight.
+
+Return all triggered rules.
+
+==================================================
+MACHINE LEARNING
+==================================================
+
+Use Isolation Forest.
+
+Calculate anomaly score.
+
+Generate Fraud Probability.
+
+Normalize score between 0 and 100.
+
+Combine Rule Score and ML Score.
+
+Final Risk Score
+
+Rule Engine = 60%
+
+Machine Learning = 40%
+
+==================================================
+ANALYSIS OUTPUT
+==================================================
+
+Backend returns:
+
+Executive Summary
+
+Risk Score
+
+Risk Level
+
+Detected Fraud Indicators
+
+High Risk Accounts
+
+High Risk Journal Entries
+
+Top Changed Accounts
+
+Risk Distribution
+
+Risk Trend
+
+Compliance Summary
+
+Recommendations
+
+Dashboard Statistics
+
+==================================================
+DASHBOARD
+==================================================
+
+Modern enterprise dashboard.
+
+Top KPIs
+
+Risk Score
+
+Journal Entries
+
+Flagged Accounts
+
+Suspicious Transactions
+
+Compliance %
+
+AI Confidence
+
+Sections:
+
+Risk Gauge
+
+Risk Distribution Pie
+
+Risk Trend
+
+Top Changed Accounts
+
+High Risk Accounts
+
+High Risk Entries Table
+
+Fraud Indicators
+
+IFRS Compliance
+
+AI Executive Summary
+
+Recommendations
+
+==================================================
+ENTRY DETAILS
+==================================================
+
+Clicking an entry opens details.
+
+Show:
+
+Entry ID
+
+Account
+
+Amount
+
+Risk Score
+
+Fraud Probability
+
+Triggered Rules
+
+ML Score
+
+Reason
+
+Recommendation
+
+==================================================
+REPORTS
+==================================================
+
+Generate downloadable reports.
+
+PDF
+
+Excel
+
+Include:
+
+Executive Summary
+
+Charts
+
+KPIs
+
+Risk Analysis
+
+Fraud Findings
+
+Compliance Findings
+
+Recommendations
+
+==================================================
+DEMO MODE
+==================================================
+
+Include realistic accounting demo data.
+
+Thousands of journal entries.
+
+Hundreds of accounts.
+
+Generate believable trends.
+
+==================================================
+PROJECT STRUCTURE
+==================================================
+
+frontend/
+
+backend/
+
+shared/
+
+api/
+
+components/
+
+pages/
+
+services/
+
+models/
+
+utils/
+
+==================================================
+IMPORTANT
+==================================================
+
+The backend must perform REAL analysis.
+
+Do NOT generate fake dashboard numbers.
+
+Dashboard must reflect uploaded files.
+
+If a different Excel file is uploaded, results must change.
+
+The backend must actually read, validate, analyze and score uploaded accounting files.
+
+All calculations must happen on the server.
+
+The frontend is only responsible for visualization.
+
+Write clean, modular and reusable code.
+
+The system should be ready to later connect to ERP systems such as SAP, Oracle, Odoo and ERPNext through APIs.
