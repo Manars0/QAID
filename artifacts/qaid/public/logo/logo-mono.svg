@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 172 52" fill="none">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@600&amp;display=swap');
+    </style>
+  </defs>
+  <rect width="172" height="52" fill="#FFFFFF"/>
+  <!-- Icon monochrome -->
+  <g transform="translate(6 6) scale(0.8333)">
+    <path d="M 27 35.1 A 11.5 11.5 0 1 0 32.1 32.1"
+          stroke="#0F172A" stroke-width="3.6" stroke-linecap="round"/>
+    <line x1="32.1" y1="32.1" x2="39.7" y2="39.7"
+          stroke="#0F172A" stroke-width="3.6" stroke-linecap="round"/>
+  </g>
+  <!-- QAID text -->
+  <text x="54" y="33"
+        font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+        font-weight="600" font-size="22" letter-spacing="2.5"
+        fill="#0F172A">QAID</text>
+</svg>

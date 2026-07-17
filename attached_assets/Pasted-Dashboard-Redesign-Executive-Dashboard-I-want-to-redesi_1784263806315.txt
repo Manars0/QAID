@@ -1,0 +1,260 @@
+Dashboard Redesign (Executive Dashboard)
+
+I want to redesign the analysis dashboard to make it cleaner, more professional, and easier for executives, auditors, and CFOs to use.
+
+The current dashboard contains too much information and requires excessive scrolling. The goal is not to remove functionality, but to reorganize it into a clean executive experience.
+
+General Rules
+Keep all existing backend logic.
+Keep all AI analysis.
+Keep all rule engine calculations.
+Keep ML scoring.
+Keep PDF and Excel export.
+Keep dark/light mode.
+Keep Arabic & English support.
+Keep responsive design.
+
+Only redesign the UI and information hierarchy.
+
+1. Executive Summary Section
+
+The first screen should immediately communicate the overall result.
+
+Top row should contain only these KPI cards:
+
+Overall Risk Score
+Journal Entries Analyzed
+Suspicious Transactions
+Compliance Rate
+
+Remove:
+
+AI Confidence Score
+
+Replace it with:
+
+Data Quality
+
+Example:
+
+Processed Rows
+Duplicate Rows
+Missing Values
+Invalid Accounts
+
+This is much more meaningful for users than an arbitrary AI confidence percentage.
+
+2. AI Executive Summary
+
+Keep the Executive Summary directly below the KPI cards.
+
+Make it the most visually important card on the page.
+
+The AI summary should explain:
+
+Overall risk
+Number of suspicious entries
+Compliance status
+Main detected issues
+Overall recommendation
+
+This should read like a real executive report.
+
+3. Recommended Actions
+
+Place Recommended Actions beside the Executive Summary.
+
+Each recommendation should be concise and actionable.
+
+Example:
+
+• Review weekend journal postings
+
+• Investigate duplicate entries
+
+• Review IAS 24 related transactions
+
+• Validate unusually large journal entries
+
+4. Financial Overview
+
+Create one clean section called
+
+Financial Overview
+
+Inside it show only:
+
+Overall Risk Gauge
+Risk Distribution
+Top Risk Accounts
+
+Use equal-sized cards.
+
+5. Remove Risk Trend Chart
+
+Remove the "Risk Trend" line chart completely.
+
+Reason:
+
+The uploaded dataset is usually a snapshot.
+
+A trend chart generated from a single upload does not provide meaningful business insight.
+
+6. Replace Top Account Fluctuations
+
+Replace
+
+Top Account Fluctuations
+
+with
+
+Top Risk Accounts
+
+Display:
+
+Account Name
+
+Average Risk Score
+
+Risk Level
+
+Total Amount
+
+Sort descending by risk score.
+
+Use a clean horizontal bar chart or ranked list.
+
+Avoid percentages that don't clearly represent business meaning.
+
+7. Fraud Indicators
+
+Keep Fraud Indicators.
+
+Redesign them into compact statistic cards.
+
+Each card should contain:
+
+Icon
+
+Title
+
+Count
+
+One short description
+
+Example:
+
+Weekend Posting
+
+481
+
+Posted during weekends.
+
+Do not use long paragraphs.
+
+8. High Risk Journal Entries
+
+Keep this table.
+
+Show only the first 10 highest-risk entries.
+
+Add a button:
+
+View All Entries
+
+to expand the full list.
+
+This prevents extremely long scrolling.
+
+9. Entry Details
+
+Keep the slide-over panel.
+
+The current implementation is excellent.
+
+No major changes needed.
+
+Improve spacing and typography only.
+
+10. IFRS Compliance
+
+Replace the long table with compact cards.
+
+Example:
+
+IAS 1
+
+✅ Compliant
+
+IAS 8
+
+⚠ Needs Review
+
+IAS 24
+
+❌ High Risk
+
+IFRS 15
+
+⚠ Review Required
+
+Clicking a card should expand the detailed explanation.
+
+Do not display every standard in a long table by default.
+
+11. Reports
+
+Keep
+
+Export Excel
+
+Download PDF
+
+at the top-right exactly as they are.
+
+12. Spacing
+
+Increase white space.
+
+Reduce visual density.
+
+Each section should breathe.
+
+Avoid stacking too many charts together.
+
+13. Typography
+
+Headings should be larger.
+
+Use clearer section titles.
+
+Improve spacing between titles and content.
+
+Use consistent font weights.
+
+14. Final Page Structure
+
+The page should follow this exact order:
+
+KPI Cards
+AI Executive Summary + Recommended Actions
+Financial Overview
+Risk Gauge
+Risk Distribution
+Top Risk Accounts
+Fraud Indicators
+High Risk Journal Entries
+IFRS Compliance
+Footer
+
+This order should allow most users to understand the entire analysis without excessive scrolling.
+
+15. Design Goal
+
+The dashboard should resemble a premium enterprise analytics platform such as Microsoft Fabric, Stripe Dashboard, Power BI, or AuditBoard.
+
+The design must feel modern, executive-focused, clean, and highly professional.
+
+Avoid unnecessary charts, duplicated information, and oversized tables.
+
+The objective is to create a dashboard that tells the financial story immediately rather than overwhelming the user with raw analytics.

@@ -1,0 +1,160 @@
+Create a completely original logo for our product.
+
+Brand Name:
+
+QAID
+
+Arabic:
+
+قيد
+
+Meaning:
+
+The Arabic word "قيد" refers to an Accounting Journal Entry.
+
+Do NOT copy or imitate any existing logo.
+
+Instead, use the same design philosophy as modern fintech brands:
+
+- Minimal
+- Geometric
+- Flat
+- Monogram
+- Enterprise
+- Premium
+- Timeless
+
+==================================================
+
+DESIGN CONCEPT
+
+Create a custom monogram based on the Arabic concept of "قيد" and the English letter Q.
+
+The icon should represent ideas such as:
+
+• Accounting Journal Entry
+• Ledger
+• Financial Records
+• Audit
+• Structure
+• Balance
+• Trust
+• Precision
+
+Avoid generic AI symbols.
+
+Avoid shields.
+
+Avoid brains.
+
+Avoid robots.
+
+Avoid charts inside the logo.
+
+==================================================
+
+STYLE
+
+Think about brands like:
+
+Stripe
+
+Linear
+
+Ramp
+
+Mercury
+
+Notion
+
+Modern banking software
+
+Enterprise SaaS
+
+The logo should feel premium and suitable for banks, auditors and CFOs.
+
+==================================================
+
+GEOMETRY
+
+Use simple geometric shapes.
+
+Rounded corners.
+
+Consistent stroke thickness.
+
+Perfect proportions.
+
+Minimal negative space.
+
+The icon should be recognizable even at 24px.
+
+==================================================
+
+COLOR
+
+Primary
+
+#0F766E
+
+Secondary
+
+#2563EB
+
+Neutral
+
+White
+
+Dark Gray
+
+Generate:
+
+• Light version
+• Dark version
+• Monochrome version
+
+==================================================
+
+TYPOGRAPHY
+
+English
+
+Inter SemiBold
+
+Arabic
+
+Tajawal Bold
+
+Show the logo as:
+
+Icon + QAID
+
+Icon + قيد
+
+Icon only
+
+==================================================
+
+DELIVERABLES
+
+Generate:
+
+SVG
+
+PNG
+
+Favicon
+
+App Icon
+
+Transparent Background
+
+Square version
+
+Horizontal version
+
+Brand guidelines preview
+
+==================================================
+
+The final logo must be unique, original and designed specifically for QAID.

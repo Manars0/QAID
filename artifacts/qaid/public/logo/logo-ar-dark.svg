@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 164 52" fill="none">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@700&amp;display=swap');
+    </style>
+    <linearGradient id="qg-ard" x1="8" y1="6" x2="50" y2="46" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0F766E"/>
+      <stop offset="100%" stop-color="#2563EB"/>
+    </linearGradient>
+  </defs>
+  <rect width="164" height="52" fill="#0D1117"/>
+  <!-- Icon -->
+  <g transform="translate(6 6) scale(0.8333)">
+    <path d="M 27 35.1 A 11.5 11.5 0 1 0 32.1 32.1"
+          stroke="url(#qg-ard)" stroke-width="3.6" stroke-linecap="round"/>
+    <line x1="32.1" y1="32.1" x2="39.7" y2="39.7"
+          stroke="url(#qg-ard)" stroke-width="3.6" stroke-linecap="round"/>
+  </g>
+  <!-- Arabic قيد text -->
+  <text x="110" y="33" text-anchor="end"
+        font-family="Tajawal, 'Segoe UI', Tahoma, Arial, sans-serif"
+        font-weight="700" font-size="26"
+        fill="#F8FAFC">قيد</text>
+</svg>

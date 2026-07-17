@@ -1,0 +1,50 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "hFRAJe9s0_jJceEiv0ziN"
+uri = "file://artifacts/qaid/public/logo/brand-preview.png"
+type = "image"
+title = "QAID Brand Guidelines Preview"
+
+[[outputs]]
+id = "Sb-fVJLlMRuJO4T7ONQxL"
+uri = "file://artifacts/qaid/public/logo/app-icon-512.png"
+type = "image"
+title = "App Icon (512×512)"
+
+[[outputs]]
+id = "B4ZneOtESGTZh231puYNF"
+uri = "file://artifacts/qaid/public/logo/logo-light.png"
+type = "image"
+title = "Logo — Light (English)"
+
+[[outputs]]
+id = "dJNhdjXXt2cYZUbVFkGQe"
+uri = "file://artifacts/qaid/public/logo/logo-dark.png"
+type = "image"
+title = "Logo — Dark (English)"
+
+[[outputs]]
+id = "XOV9WeeqtbGYDnJsohgtn"
+uri = "file://artifacts/qaid/public/logo/logo-ar-light.png"
+type = "image"
+title = "Logo — Light (Arabic قيد)"
+
+[[outputs]]
+id = "3w3cEjLogAyf0-FBbLMCP"
+uri = "file://artifacts/qaid/public/logo/logo-ar-dark.png"
+type = "image"
+title = "Logo — Dark (Arabic قيد)"
+
+[[outputs]]
+id = "Bjp1sv1yNX63jOAIGswkL"
+uri = "file://artifacts/qaid/public/logo/logo-mono.png"
+type = "image"
+title = "Logo — Monochrome"
+
+[[outputs]]
+id = "8_Jp36UWz_1pqg5EYILJG"
+uri = "file://artifacts/qaid/public/logo/icon-256.png"
+type = "image"
+title = "Icon — Transparent (256×256)"

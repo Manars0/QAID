@@ -1,10 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
-  <!-- Teal rounded-square background -->
-  <rect width="48" height="48" rx="10" fill="#0F766E"/>
-  <!-- White Q ring -->
+  <!-- Q ring -->
   <path d="M 27 35.1 A 11.5 11.5 0 1 0 32.1 32.1"
         stroke="#FFFFFF" stroke-width="3.6" stroke-linecap="round"/>
-  <!-- White Q tail -->
+  <!-- Q tail -->
   <line x1="32.1" y1="32.1" x2="39.7" y2="39.7"
         stroke="#FFFFFF" stroke-width="3.6" stroke-linecap="round"/>
 </svg>

@@ -307,7 +307,7 @@ def _build_erp_journal_df(
             .reset_index()
         )
         lines = lines.merge(agg, on="journal_id", how="left")
-        lines["has_approval"] = lines["is_approved"].fillna(False).astype(bool)
+        lines["has_approval"] = lines["is_approved"].fillna(False).infer_objects(copy=False).astype(bool)
         lines["approval_count"] = lines["approval_count"].fillna(0).astype(int)
     else:
         lines["has_approval"] = True
