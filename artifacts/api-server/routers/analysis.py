@@ -27,21 +27,20 @@ async def upload_file(file: UploadFile = File(...)):
     filename = file.filename or "upload"
 
     try:
-        df, file_label = process_uploaded_file(content, filename)
+        df, file_label, fraud_labels = process_uploaded_file(content, filename)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
     if len(df) == 0:
         raise HTTPException(status_code=400, detail="No data found in uploaded file")
 
-    result = analyzer.run_analysis(df, file_label)
+    result = analyzer.run_analysis(df, file_label, fraud_labels=fraud_labels)
     return result
 
 
 @router.post("/demo", response_model=AnalysisResult)
 async def load_demo():
     """Load and analyze the demo file from backend/demo_data/."""
-    # Find first supported file in the demo_data directory
     demo_file: Path | None = None
     if DEMO_DATA_DIR.is_dir():
         for path in sorted(DEMO_DATA_DIR.iterdir()):
@@ -54,14 +53,14 @@ async def load_demo():
 
     content = demo_file.read_bytes()
     try:
-        df, file_label = process_uploaded_file(content, demo_file.name)
+        df, file_label, fraud_labels = process_uploaded_file(content, demo_file.name)
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
 
     if len(df) == 0:
         raise HTTPException(status_code=422, detail="Demo file contains no data")
 
-    result = analyzer.run_analysis(df, file_label)
+    result = analyzer.run_analysis(df, file_label, fraud_labels=fraud_labels)
     return result
 
 

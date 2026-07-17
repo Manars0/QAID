@@ -30,8 +30,24 @@ def get_session(session_id: str) -> Dict[str, Any]:
     return _sessions.get(session_id)
 
 
-def run_analysis(df: pd.DataFrame, file_name: str) -> AnalysisResult:
-    """Run the full QAID analysis pipeline."""
+def run_analysis(
+    df: pd.DataFrame,
+    file_name: str,
+    fraud_labels: "pd.DataFrame | None" = None,
+) -> AnalysisResult:
+    """Run the full QAID analysis pipeline.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Standardised journal-line records from the dataset loader.
+    file_name : str
+        Human-readable label for the source file.
+    fraud_labels : pd.DataFrame | None
+        Ground-truth fraud table (ERP ZIPs only).
+        Used ONLY internally to validate model performance and enrich the
+        executive summary. Never exposed to the frontend.
+    """
     session_id = str(uuid.uuid4())[:8]
     created_at = datetime.utcnow().isoformat() + "Z"
 
@@ -57,6 +73,9 @@ def run_analysis(df: pd.DataFrame, file_name: str) -> AnalysisResult:
     )
     df["risk_level"] = df["risk_score"].apply(assign_risk_level)
 
+    # === GROUND-TRUTH VALIDATION (internal, never exposed) ===
+    fraud_info = _compute_fraud_info(df, fraud_labels)
+
     # === BUILD OUTPUT ===
     kpi = _compute_kpi(df)
     risk_dist = _compute_risk_distribution(df)
@@ -66,8 +85,8 @@ def run_analysis(df: pd.DataFrame, file_name: str) -> AnalysisResult:
     top_changed = _get_top_changed_accounts(df)
     fraud_indicators = _get_fraud_indicators(df)
     compliance = _check_ifrs_compliance(df, kpi)
-    recommendations = _generate_recommendations(df, kpi, fraud_indicators, compliance)
-    ai_summary = _generate_ai_summary(kpi, fraud_indicators, compliance)
+    recommendations = _generate_recommendations(df, kpi, fraud_indicators, compliance, fraud_info)
+    ai_summary = _generate_ai_summary(kpi, fraud_indicators, compliance, fraud_info)
 
     result = AnalysisResult(
         session_id=session_id,
@@ -122,6 +141,43 @@ def get_raw_df(session_id: str) -> pd.DataFrame:
 
 # ===== PRIVATE HELPERS =====
 
+def _compute_fraud_info(df: pd.DataFrame, fraud_labels: "pd.DataFrame | None") -> dict | None:
+    """
+    Compute internal model-performance metrics against ground-truth Fraud_Labels.
+    Returns a dict used only in executive summary and recommendations.
+    Never exposed to the frontend.
+    """
+    has_known = "_known_fraud" in df.columns and df["_known_fraud"].any()
+    if not has_known:
+        return None
+
+    known_mask = df["_known_fraud"].astype(bool)
+    total_known = int(known_mask.sum())
+
+    caught_high = int((known_mask & (df["risk_score"] >= 50)).sum())
+    caught_critical = int((known_mask & (df["risk_score"] >= 75)).sum())
+    recall_high = round(caught_high / max(total_known, 1), 4)
+
+    # Derive unique fraud types from fraud_labels if available
+    fraud_types: list[str] = []
+    if fraud_labels is not None and "fraud_type" in fraud_labels.columns:
+        fraud_types = (
+            fraud_labels[fraud_labels.get("is_fraud", fraud_labels["fraud"].str.lower().isin(["yes","true","1"]))]
+            ["fraud_type"]
+            .dropna()
+            .unique()
+            .tolist()[:5]
+        )
+
+    return {
+        "total_known": total_known,
+        "caught_high": caught_high,
+        "caught_critical": caught_critical,
+        "recall": recall_high,
+        "fraud_types": fraud_types,
+    }
+
+
 def _validate_data(df: pd.DataFrame) -> list:
     issues = []
 
@@ -156,14 +212,19 @@ def _validate_data(df: pd.DataFrame) -> list:
             description="Entries with unparseable or missing dates",
         ))
 
-    # Debit/Credit imbalance
-    imbalance = ((df["debit"] - df["credit"]).abs() > df["amount"] * 0.05).sum()
+    # Debit/Credit imbalance — check at journal level for double-entry format
+    if "_journal_balanced" in df.columns:
+        imbalance = int((~df["_journal_balanced"].astype(bool)).sum())
+    else:
+        both = (df["debit"] > 0) & (df["credit"] > 0)
+        imbalance = int(((df.loc[both, "debit"] - df.loc[both, "credit"]).abs()
+                         > df.loc[both, "amount"] * 0.05).sum())
     if imbalance > 0:
         issues.append(ValidationIssue(
             type="DEBIT_CREDIT_INCONSISTENCY",
             severity="HIGH",
-            count=int(imbalance),
-            description="Debit/Credit imbalance exceeding 5% of transaction amount",
+            count=imbalance,
+            description="Journal entries where debits and credits do not balance",
         ))
 
     # Zero amounts
@@ -350,14 +411,19 @@ def _get_fraud_indicators(df: pd.DataFrame) -> list:
             description=f"{dups} entries share the same account, amount, and user",
         ))
 
-    # Debit/Credit imbalance
-    imbal = int(((df["debit"] - df["credit"]).abs() > df["amount"] * 0.05).sum())
+    # Debit/Credit imbalance — journal level for double-entry format
+    if "_journal_balanced" in df.columns:
+        imbal = int((~df["_journal_balanced"].astype(bool)).sum())
+    else:
+        both = (df["debit"] > 0) & (df["credit"] > 0)
+        imbal = int(((df.loc[both, "debit"] - df.loc[both, "credit"]).abs()
+                     > df.loc[both, "amount"] * 0.05).sum())
     if imbal > 0:
         indicators.append(FraudIndicator(
             name="Debit/Credit Imbalance",
             severity="CRITICAL",
             count=imbal,
-            description=f"{imbal} entries have debit/credit differences exceeding 5%",
+            description=f"{imbal} entries belong to journals where debits and credits do not balance",
         ))
 
     # Suspicious accounts
@@ -398,14 +464,19 @@ def _check_ifrs_compliance(df: pd.DataFrame, kpi: KpiSummary) -> list:
     items = []
     n = len(df)
 
-    # IAS 1: Debit/Credit balance
-    imbal = ((df["debit"] - df["credit"]).abs() > df["amount"] * 0.05).sum()
+    # IAS 1: Debit/Credit balance — check at journal level for double-entry format
+    if "_journal_balanced" in df.columns:
+        imbal = int((~df["_journal_balanced"].astype(bool)).sum())
+    else:
+        both = (df["debit"] > 0) & (df["credit"] > 0)
+        imbal = int(((df.loc[both, "debit"] - df.loc[both, "credit"]).abs()
+                     > df.loc[both, "amount"] * 0.05).sum())
     bal_pct = round((1 - imbal / max(n, 1)) * 100, 1)
     items.append(ComplianceItem(
         standard="IAS 1",
         requirement="Presentation of Financial Statements – Debit/Credit Balance",
         status="COMPLIANT" if imbal == 0 else ("WARNING" if imbal < n * 0.02 else "NON_COMPLIANT"),
-        details=f"{int(imbal)} entries have debit/credit imbalances. Balance rate: {bal_pct}%",
+        details=f"{imbal} entries have debit/credit imbalances. Balance rate: {bal_pct}%",
         score=bal_pct,
     ))
 
@@ -458,7 +529,7 @@ def _check_ifrs_compliance(df: pd.DataFrame, kpi: KpiSummary) -> list:
     return items
 
 
-def _generate_recommendations(df, kpi, fraud_indicators, compliance) -> list:
+def _generate_recommendations(df, kpi, fraud_indicators, compliance, fraud_info=None) -> list:
     recs = []
     score = kpi.overall_risk_score
 
@@ -490,10 +561,24 @@ def _generate_recommendations(df, kpi, fraud_indicators, compliance) -> list:
     recs.append("Schedule quarterly fraud risk assessments and update rule engine weights based on audit findings.")
     recs.append("Enforce multi-level approval for transactions exceeding materiality thresholds.")
 
+    if fraud_info:
+        recall_pct = round(fraud_info["recall"] * 100, 1)
+        uncaught = fraud_info["total_known"] - fraud_info["caught_high"]
+        if uncaught > 0:
+            recs.append(
+                f"Internal validation: {uncaught} known fraud entries scored below the 50-point detection threshold. "
+                "Review and tighten rule weights to close detection gaps."
+            )
+        if recall_pct >= 80:
+            recs.append(
+                f"Rule engine recall against ground-truth fraud cases is {recall_pct}%. "
+                "Maintain current detection thresholds and monitor for drift."
+            )
+
     return recs[:8]
 
 
-def _generate_ai_summary(kpi, fraud_indicators, compliance) -> str:
+def _generate_ai_summary(kpi, fraud_indicators, compliance, fraud_info=None) -> str:
     score = kpi.overall_risk_score
     level = kpi.risk_level
     total = kpi.total_entries
@@ -531,6 +616,15 @@ def _generate_ai_summary(kpi, fraud_indicators, compliance) -> str:
         summary += "Elevated fraud risk detected across multiple dimensions. Internal audit engagement is recommended."
     else:
         summary += "Critical risk level — potential systemic fraud or data integrity issues. Escalate to senior management immediately."
+
+    if fraud_info:
+        types_str = (", ".join(fraud_info["fraud_types"]) + ".") if fraud_info["fraud_types"] else ""
+        summary += (
+            f" Ground-truth validation: {fraud_info['caught_high']} of {fraud_info['total_known']} "
+            f"known fraud entries detected (recall {fraud_info['recall']*100:.1f}%)."
+        )
+        if types_str:
+            summary += f" Embedded fraud patterns include: {types_str}"
 
     return summary
 

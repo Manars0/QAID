@@ -16,8 +16,20 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     df["feat_log_amount"] = np.log1p(df["feat_amount"])
 
     # 2. Debit/Credit Difference (imbalance indicator)
+    # For double-entry journal lines each row has either debit OR credit (not both).
+    # Use journal-level balance when available; fall back to line-level otherwise.
     df["feat_debit_credit_diff"] = (df["debit"] - df["credit"]).abs()
-    df["feat_debit_credit_diff_pct"] = df["feat_debit_credit_diff"] / (df["amount"].clip(lower=1.0))
+    if "_journal_imbalance_pct" in df.columns:
+        # Journal-level: correct for double-entry line format
+        df["feat_debit_credit_diff_pct"] = df["_journal_imbalance_pct"].fillna(0.0)
+    else:
+        # Flat format: line-level check is meaningful only when both sides are present
+        both_sides = (df["debit"] > 0) & (df["credit"] > 0)
+        df["feat_debit_credit_diff_pct"] = 0.0
+        df.loc[both_sides, "feat_debit_credit_diff_pct"] = (
+            df.loc[both_sides, "feat_debit_credit_diff"]
+            / df.loc[both_sides, "amount"].clip(lower=1.0)
+        )
 
     # 3. Posting Hour (0-23)
     df["feat_posting_hour"] = df["date"].dt.hour

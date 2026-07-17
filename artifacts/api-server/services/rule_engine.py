@@ -109,7 +109,6 @@ def apply_rules(df: pd.DataFrame) -> pd.DataFrame:
         triggered = []
         total_weight = 0
 
-        dc_diff_pct = abs(row.get("debit", 0) - row.get("credit", 0)) / max(row.get("amount", 1), 1)
         amount = row.get("amount", 0)
         acct = str(row.get("account_code", ""))
         user = str(row.get("user", ""))
@@ -120,6 +119,22 @@ def apply_rules(df: pd.DataFrame) -> pd.DataFrame:
         user_count = user_freq.get(user, 0)
         is_dup = row.get("feat_potential_duplicate", 0)
         acct_freq = row.get("feat_account_frequency", 10)
+
+        # Debit/Credit imbalance — use journal-level balance when available.
+        # For double-entry line format (debit=X,credit=0 or debit=0,credit=X),
+        # only fire when both sides are non-zero OR when journal-level data exists.
+        journal_balanced = row.get("_journal_balanced", None)
+        if journal_balanced is not None:
+            # Have journal-level data: use it
+            dc_diff_pct = row.get("_journal_imbalance_pct", 0.0)
+        else:
+            # Flat format: only meaningful when both sides are populated
+            debit = row.get("debit", 0)
+            credit = row.get("credit", 0)
+            if debit > 0 and credit > 0:
+                dc_diff_pct = abs(debit - credit) / max(amount, 1)
+            else:
+                dc_diff_pct = 0.0
 
         # R1: Debit/Credit imbalance > 5%
         if dc_diff_pct > 0.05:
@@ -200,7 +215,6 @@ def get_rule_detail_for_entry(entry: pd.Series) -> List[Dict]:
     """Get detailed rule breakdown for a single entry."""
     details = []
 
-    dc_diff_pct = abs(entry.get("debit", 0) - entry.get("credit", 0)) / max(entry.get("amount", 1), 1)
     amount = entry.get("amount", 0)
     acct = str(entry.get("account_code", ""))
     hour = entry.get("feat_posting_hour", 12)
@@ -208,6 +222,17 @@ def get_rule_detail_for_entry(entry: pd.Series) -> List[Dict]:
     monthly_chg = entry.get("feat_monthly_change_pct", 0)
     is_dup = entry.get("feat_potential_duplicate", 0)
     acct_freq = entry.get("feat_account_frequency", 10)
+
+    journal_balanced = entry.get("_journal_balanced", None)
+    if journal_balanced is not None:
+        dc_diff_pct = entry.get("_journal_imbalance_pct", 0.0)
+    else:
+        debit = entry.get("debit", 0)
+        credit = entry.get("credit", 0)
+        if debit > 0 and credit > 0:
+            dc_diff_pct = abs(debit - credit) / max(amount, 1)
+        else:
+            dc_diff_pct = 0.0
 
     checks = [
         ("debit_credit_imbalance", dc_diff_pct > 0.05),
