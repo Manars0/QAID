@@ -4,6 +4,7 @@ import { useLocation } from "wouter"
 import { toast } from "sonner"
 import { useTheme } from "../components/theme-provider"
 import { translations } from "../lib/i18n"
+import { getLogoSrc } from "../lib/logo"
 import { useAnalysis } from "../contexts/AnalysisContext"
 import { useUploadFile, useLoadDemo } from "@workspace/api-client-react"
 import { Button } from "../components/ui/button"
@@ -11,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { motion } from "framer-motion"
 
 export function Landing() {
-  const { language } = useTheme()
+  const { language, theme } = useTheme()
   const t = translations[language]
   const [, setLocation] = useLocation()
   const { setAnalysisResult } = useAnalysis()
@@ -77,7 +78,7 @@ export function Landing() {
           {/* Logo image — replaces the old text h1 */}
           <div className="flex justify-center">
             <img
-              src="/qaid-logo.png"
+              src={getLogoSrc(theme)}
               alt="QAID"
               className="h-24 w-auto object-contain"
               style={{ background: "transparent", border: "none", boxShadow: "none" }}

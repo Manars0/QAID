@@ -3,6 +3,7 @@ import { Link } from "wouter"
 import { Moon, Sun, Globe } from "lucide-react"
 import { useTheme } from "../theme-provider"
 import { translations } from "../../lib/i18n"
+import { getLogoSrc } from "../../lib/logo"
 import { Button } from "../ui/button"
 
 export function Header() {
@@ -16,10 +17,11 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
       <div className="container flex h-16 items-center justify-between px-4 mx-auto max-w-7xl">
 
-        {/* Logo */}
+        {/* Logo — switches automatically with theme */}
         <Link href="/" className="flex items-center select-none shrink-0">
           <img
-            src="/qaid-logo.png"
+            key={theme}
+            src={getLogoSrc(theme)}
             alt="QAID"
             className="h-9 w-auto object-contain"
             style={{ background: "transparent", border: "none", boxShadow: "none" }}
