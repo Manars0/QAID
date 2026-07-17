@@ -1,0 +1,259 @@
+QAID Brand Refresh
+
+Apply a complete visual rebrand across the entire application using the logo image that I will upload after this message.
+
+1. Replace the Logo
+Replace every existing QAID logo with the uploaded logo image.
+Use the uploaded image as the official logo.
+Preserve aspect ratio.
+Create optimized versions for:
+Navbar
+Sidebar
+Login/Landing page
+Favicon
+Browser tab
+Loading screen (if exists)
+
+Do NOT recreate or redraw the logo.
+Use the uploaded asset exactly as provided.
+
+2. Replace the Color Palette
+
+Replace the current blue theme with the following brand colors.
+
+Primary
+
+Teal
+
+#0F766E
+
+Hover
+
+#115E59
+
+Dark Navy
+
+#0F172A
+
+Background
+
+#F8FAFC
+
+Card
+
+#FFFFFF
+
+Border
+
+#E2E8F0
+
+Text Primary
+
+#0F172A
+
+Text Secondary
+
+#64748B
+
+Success
+
+#10B981
+
+Warning
+
+#F59E0B
+
+Danger
+
+#EF4444
+3. Update Theme System
+
+Remove all hardcoded blue colors.
+
+Create reusable design tokens / CSS variables.
+
+Example:
+
+--primary
+--primary-hover
+--background
+--card
+--border
+--text
+--text-secondary
+--success
+--warning
+--danger
+
+Every component must consume these variables.
+
+4. Buttons
+
+Primary buttons
+
+Background:
+
+#0F766E
+
+Hover:
+
+#115E59
+
+Text:
+White
+
+Radius:
+12px
+
+Soft shadow.
+
+5. KPI Cards
+
+Replace blue accents with Teal.
+
+Use:
+
+Top border
+
+or
+
+Left accent bar
+
+instead of random colors.
+
+Icons:
+
+Use the new primary teal.
+
+6. Charts
+
+Update all chart colors.
+
+Primary
+
+#0F766E
+
+Secondary
+
+#14B8A6
+
+Success
+
+#10B981
+
+Warning
+
+#F59E0B
+
+Danger
+
+#EF4444
+
+Neutral
+
+#CBD5E1
+
+No bright purple or old blue colors should remain.
+
+7. Badges
+
+Low
+
+Green
+
+Medium
+
+Amber
+
+High
+
+Orange
+
+Critical
+
+Red
+
+Follow the new palette.
+
+8. Navbar
+
+Background:
+
+White
+
+Bottom border:
+
+#E2E8F0
+
+Replace old logo with uploaded logo.
+
+9. Landing Page
+
+Replace hero logo.
+
+Update CTA buttons.
+
+Replace blue gradients with teal gradients.
+
+10. Dark Mode
+
+Create a proper dark theme.
+
+Background
+
+#020617
+
+Cards
+
+#0F172A
+
+Borders
+
+#1E293B
+
+Primary Teal remains the accent.
+
+Charts should automatically switch to dark-friendly colors.
+
+11. Fonts
+
+English
+
+Inter
+
+Arabic
+
+Tajawal
+
+Apply everywhere.
+
+No mixed fonts.
+
+12. Polish
+
+Increase whitespace slightly.
+
+Reduce visual clutter.
+
+Use softer shadows.
+
+Maintain the current layout.
+
+Do NOT redesign the application.
+
+Only modernize it using the new brand identity.
+
+13. Final QA
+
+Before finishing:
+
+No old logo anywhere.
+No blue theme remains.
+Light mode works.
+Dark mode works.
+Responsive on desktop/tablet/mobile.
+Logo looks crisp on Retina displays.
+Favicon updated.
+Theme colors are consistent across the entire application.
+
+Do not change any backend functionality or business logic. Only update the visual identity and branding.

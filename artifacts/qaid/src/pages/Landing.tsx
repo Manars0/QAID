@@ -1,5 +1,5 @@
 import React from "react"
-import { FileUp, Play, ShieldAlert, FileSearch, TrendingUp, Cpu, Server, Activity, FileCheck, CheckCircle } from "lucide-react"
+import { FileUp, Play, ShieldAlert, FileSearch, TrendingUp, Cpu, Server, Activity, FileCheck } from "lucide-react"
 import { useLocation } from "wouter"
 import { toast } from "sonner"
 import { useTheme } from "../components/theme-provider"
@@ -7,7 +7,7 @@ import { translations } from "../lib/i18n"
 import { useAnalysis } from "../contexts/AnalysisContext"
 import { useUploadFile, useLoadDemo } from "@workspace/api-client-react"
 import { Button } from "../components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { motion } from "framer-motion"
 
 export function Landing() {
@@ -48,53 +48,67 @@ export function Landing() {
   const handleFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
     const file = e.dataTransfer.files[0]
-    if (file) {
-      uploadFile.mutate({ data: { file: file as any } })
-    }
+    if (file) uploadFile.mutate({ data: { file: file as any } })
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) {
-      uploadFile.mutate({ data: { file: file as any } })
-    }
+    if (file) uploadFile.mutate({ data: { file: file as any } })
   }
 
   const isLoading = uploadFile.isPending || loadDemo.isPending
 
   return (
     <div className="flex flex-col min-h-[calc(100dvh-4rem)]">
-      {/* Hero Section */}
-      <section className="flex-1 flex flex-col items-center justify-center text-center px-4 py-20 bg-gradient-to-b from-background to-muted/30">
+
+      {/* ── Hero ──────────────────────────────────────────────────────────── */}
+      <section className="flex-1 flex flex-col items-center justify-center text-center px-4 py-20 bg-gradient-to-b from-background via-background to-[hsl(174,76%,25%)]/5">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="max-w-4xl mx-auto space-y-8"
         >
-          <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground">
+          {/* Pill badge */}
+          <span className="inline-flex items-center rounded-full border border-[hsl(174,76%,25%)]/30 bg-[hsl(174,76%,25%)]/8 px-3.5 py-1 text-sm font-semibold text-primary">
             Enterprise Grade AI Analysis
+          </span>
+
+          {/* Logo image — replaces the old text h1 */}
+          <div className="flex justify-center">
+            <div className="bg-[#0F172A] rounded-2xl px-8 py-5 inline-flex">
+              <img
+                src="/qaid-logo.png"
+                alt="QAID"
+                className="h-20 w-auto object-contain"
+                draggable={false}
+              />
+            </div>
           </div>
-          
-          <h1 className="text-5xl font-extrabold tracking-tight sm:text-6xl lg:text-7xl">
-            <span className="text-primary">{t.app_name}</span>
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             {t.tagline}
           </p>
 
-          <div className="grid sm:grid-cols-2 gap-6 max-w-3xl mx-auto pt-8">
-            <div 
+          {/* Action cards */}
+          <div className="grid sm:grid-cols-2 gap-6 max-w-3xl mx-auto pt-4">
+
+            {/* Upload */}
+            <div
               onClick={() => !isLoading && fileInputRef.current?.click()}
               onDragOver={(e) => e.preventDefault()}
               onDrop={handleFileDrop}
-              className={`relative flex flex-col items-center justify-center gap-4 p-8 rounded-2xl border-2 border-dashed transition-colors cursor-pointer group ${isLoading ? 'opacity-50 pointer-events-none' : 'hover:border-primary hover:bg-primary/5'}`}
+              className={`relative flex flex-col items-center justify-center gap-4 p-8 rounded-2xl border-2 border-dashed transition-all cursor-pointer group ${
+                isLoading
+                  ? 'opacity-50 pointer-events-none'
+                  : 'border-border hover:border-primary hover:bg-primary/5'
+              }`}
             >
-              <input 
-                type="file" 
-                ref={fileInputRef} 
-                className="hidden" 
-                accept=".xlsx,.csv,.zip" 
+              <input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
+                accept=".xlsx,.csv,.zip"
                 onChange={handleFileChange}
               />
               <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
@@ -112,11 +126,16 @@ export function Landing() {
               )}
             </div>
 
-            <div 
+            {/* Demo */}
+            <div
               onClick={() => !isLoading && loadDemo.mutate()}
-              className={`relative flex flex-col items-center justify-center gap-4 p-8 rounded-2xl border bg-card transition-all cursor-pointer shadow-sm ${isLoading ? 'opacity-50 pointer-events-none' : 'hover:shadow-md hover:border-primary/50'}`}
+              className={`relative flex flex-col items-center justify-center gap-4 p-8 rounded-2xl border bg-card shadow-sm transition-all cursor-pointer group ${
+                isLoading
+                  ? 'opacity-50 pointer-events-none'
+                  : 'hover:shadow-md hover:border-primary/40'
+              }`}
             >
-              <div className="h-16 w-16 rounded-full bg-secondary flex items-center justify-center text-foreground">
+              <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center text-foreground group-hover:bg-primary/10 group-hover:text-primary transition-colors">
                 <Play className="h-8 w-8 ml-1" />
               </div>
               <div>
@@ -134,23 +153,25 @@ export function Landing() {
         </motion.div>
       </section>
 
-      {/* Features Section */}
+      {/* ── Features ──────────────────────────────────────────────────────── */}
       <section className="py-20 bg-background px-4">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12">{t.features_title}</h2>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-6">
             {[
-              { icon: Cpu, title: t.feature_1, desc: t.feature_1_desc },
-              { icon: FileCheck, title: t.feature_2, desc: t.feature_2_desc },
-              { icon: ShieldAlert, title: t.feature_3, desc: t.feature_3_desc },
+              { icon: Cpu,        title: t.feature_1, desc: t.feature_1_desc },
+              { icon: FileCheck,  title: t.feature_2, desc: t.feature_2_desc },
+              { icon: ShieldAlert,title: t.feature_3, desc: t.feature_3_desc },
             ].map((f, i) => (
-              <Card key={i} className="border-none shadow-md bg-muted/20">
+              <Card key={i} className="border shadow-sm bg-card hover:shadow-md transition-shadow">
                 <CardHeader>
-                  <f.icon className="h-10 w-10 text-primary mb-4" />
-                  <CardTitle>{f.title}</CardTitle>
+                  <div className="h-11 w-11 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                    <f.icon className="h-6 w-6 text-primary" />
+                  </div>
+                  <CardTitle className="text-lg">{f.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">{f.desc}</p>
+                  <p className="text-muted-foreground text-sm leading-relaxed">{f.desc}</p>
                 </CardContent>
               </Card>
             ))}
@@ -158,30 +179,32 @@ export function Landing() {
         </div>
       </section>
 
-      {/* Workflow Section */}
-      <section className="py-20 bg-muted/30 px-4 border-t border-b">
+      {/* ── Workflow ──────────────────────────────────────────────────────── */}
+      <section className="py-20 bg-muted/30 px-4 border-t border-b border-border">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-16">{t.workflow_title}</h2>
           <div className="relative">
-            <div className="absolute top-1/2 left-0 w-full h-1 bg-border -translate-y-1/2 hidden md:block"></div>
+            <div className="absolute top-8 left-0 w-full h-px bg-border hidden md:block" />
             <div className="grid md:grid-cols-4 gap-8 relative z-10">
               {[
-                { icon: Server, title: t.step_1 },
-                { icon: FileSearch, title: t.step_2 },
-                { icon: Cpu, title: t.step_3 },
-                { icon: TrendingUp, title: t.step_4 },
+                { icon: Server,     title: t.step_1, num: "01" },
+                { icon: FileSearch, title: t.step_2, num: "02" },
+                { icon: Cpu,        title: t.step_3, num: "03" },
+                { icon: TrendingUp, title: t.step_4, num: "04" },
               ].map((s, i) => (
                 <div key={i} className="flex flex-col items-center text-center group">
-                  <div className="w-16 h-16 rounded-full bg-background border-2 border-primary flex items-center justify-center mb-6 shadow-sm group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                    <s.icon className="h-6 w-6" />
+                  <div className="w-16 h-16 rounded-full bg-card border-2 border-border flex items-center justify-center mb-4 shadow-sm group-hover:border-primary group-hover:bg-primary/5 transition-all relative z-10">
+                    <s.icon className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
                   </div>
-                  <h3 className="font-semibold">{s.title}</h3>
+                  <span className="text-xs font-bold text-primary/60 tracking-widest mb-1">{s.num}</span>
+                  <h3 className="font-semibold text-sm">{s.title}</h3>
                 </div>
               ))}
             </div>
           </div>
         </div>
       </section>
+
     </div>
   )
 }

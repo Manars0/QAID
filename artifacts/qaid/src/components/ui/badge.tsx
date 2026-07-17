@@ -7,14 +7,25 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default: "border-transparent bg-primary text-primary-foreground",
-        secondary: "border-transparent bg-secondary text-secondary-foreground",
-        destructive: "border-transparent bg-destructive text-destructive-foreground",
-        outline: "text-foreground",
-        success: "border-transparent bg-[hsl(var(--risk-low))] text-white",
-        warning: "border-transparent bg-[hsl(var(--risk-medium))] text-white",
-        danger: "border-transparent bg-[hsl(var(--risk-high))] text-white",
-        critical: "border-transparent bg-[hsl(var(--risk-critical))] text-white",
+        // Default uses the brand teal primary
+        default:
+          "border-transparent bg-primary text-primary-foreground",
+        secondary:
+          "border-transparent bg-secondary text-secondary-foreground",
+        destructive:
+          "border-transparent bg-destructive text-white",
+        outline:
+          "text-foreground border-border",
+
+        // Risk level badges — explicit brand colours matching new palette
+        success:
+          "border-transparent bg-[#10B981] text-white",          /* LOW   — #10B981 emerald  */
+        warning:
+          "border-transparent bg-[#F59E0B] text-white",          /* MEDIUM — #F59E0B amber    */
+        danger:
+          "border-transparent bg-[#F97316] text-white",          /* HIGH  — #F97316 orange   */
+        critical:
+          "border-transparent bg-[#EF4444] text-white",          /* CRIT  — #EF4444 red      */
       },
     },
     defaultVariants: {
