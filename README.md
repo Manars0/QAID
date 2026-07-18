@@ -47,7 +47,7 @@ The application uses a **synthetic financial dataset** generated specifically fo
 
 Dataset generation repository:
 
-> [Dataset Repository][https://github.com/Manars0/erp-fraud-detection-system]
+> [Dataset Repository] https://github.com/Manars0/erp-fraud-detection-system
 
 The generated dataset simulates realistic accounting records while preserving privacy and avoiding the use of real financial information.
 
